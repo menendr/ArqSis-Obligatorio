@@ -118,3 +118,42 @@ Al volver al circuito principal, podemos usar este subcircuito como si fuera un 
 </p>
 
 De esta forma logramos esconder toda la lógica de las ROM dentro de un único componente y dejar el circuito principal bastante más limpio. Además, como el tragamonedas necesita tres displays, podemos reutilizar exactamente el mismo subcircuito para los tres sin tener que volver a armar toda la lógica de selección de imágenes.
+
+### Palanca: lectura del joystick
+
+La palanca debe iniciar una jugada únicamente cuando se mueve hacia abajo. Además, el circuito debe distinguir entre detectar ese movimiento y permitir que influya en el juego: durante los estados de Juego y Victoria, mover la palanca no debe iniciar otra jugada. La letra pide mostrar ambas condiciones mediante dos LEDs.
+
+Para estudiar la entrada elegimos el componente **Joystick** de Logisim. Según su [documentación](https://cburch.com/logisim/docs/2.7/en/html/libs/io/joystick.html), tiene dos salidas: el pin superior tiene la coordenada horizontal X y el inferior, la coordenada vertical Y. Como nos interesa el movimiento hacia abajo, decidimos utilizar solamente Y. La documentación también indica que el valor de reposo corresponde al centro, que arriba vale 1 y que abajo alcanza el valor máximo permitido por el ancho de bits configurado.
+
+Al colocar el joystick observamos que estaba configurado con 4 bits por coordenada. Para esta primera prueba redujimos el ancho a **2 bits**, suficiente para distinguir arriba, centro y abajo. Necesitábamos ver qué valor producía cada posición, por lo que consultamos a Codex cómo observar la salida en Logisim. A partir de esa consulta conectamos un  Probe  al pin Y y seleccionamos la visualización en binario
+
+| Posición vertical | Salida Y con 2 bits |
+| --- | --- |
+| Arriba | `01` |
+| Centro (reposo) | `10` |
+| Abajo | `11` |
+
+El valor `00` no corresponde a una posición del joystick. En la prueba comprobamos que la sonda muestra `10` cuando lo soltamos, `01` al llevarlo arriba y `11` al llevarlo abajo.
+
+<p align="center">
+  <img src="../img/joystick-prueba.png" alt="Joystick en reposo con una sonda que muestra 10 en la salida Y" width="400"><br>
+  <em>Figura 9. Lectura de la salida vertical del joystick en pos inferior.</em>
+</p>
+
+### Detección de la palanca abajo
+
+La salida Y tiene 2 bits, pero para encender un LED **Detección Palanca** necesitamos una señal de 1 bit que valga 1 solamente cuando Y sea `11`. Separamos Y en sus bits `y1` e `y0` mediante un **Splitter** y los conectamos a una compuerta **AND**:
+
+La expresión vale 1 para `11` y 0 para `01` y `10`. Armamos esta lógica en el subcircuito `controlador_palanca` y conectamos su entrada al eje Y del joystick en el circuito principal. Falta registrar en el informe las pruebas de su salida para las tres posiciones.
+
+<p align="center">
+  <img src="../img/controlador_palanca.png" alt="Circuito controlador de palanca" width="400"><br>
+  <em>Figura 10. Circuito controlador de palanca.</em>
+</p>
+
+Detectar que la palanca está abajo no equivale a aceptar una jugada nueva, porque la señal permanece en 1 mientras la sostenemos. En una etapa posterior tendremos que detectar un nuevo movimiento hacia abajo y habilitarlo solo si el juego está en Espera y quedan créditos. Esa condición controlará el LED **Influye** y el inicio de la jugada.
+
+<p align="center">
+  <img src="../img/palanca.png" alt="Joystick conectado al subcircuito controlador_palanca en el circuito principal" width="400"><br>
+  <em>Figura 11. Conexión del joystick al controlador de la palanca.</em>
+</p>
