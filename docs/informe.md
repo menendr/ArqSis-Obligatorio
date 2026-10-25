@@ -119,13 +119,31 @@ Al volver al circuito principal, podemos usar este subcircuito como si fuera un 
 
 De esta forma logramos esconder toda la lógica de las ROM dentro de un único componente y dejar el circuito principal bastante más limpio. Además, como el tragamonedas necesita tres displays, podemos reutilizar exactamente el mismo subcircuito para los tres sin tener que volver a armar toda la lógica de selección de imágenes.
 
+## Palanca
+
+### Data sheet
+
+La letra del obligatorio iniciar con la investigacion de que es un data sheet, e implementar una una hoja de especificaciones para la palanca.
+
+#### Que es un data sheet?
+[Unit electronics](https://uelectronics.com/como-leer-hojas-de-datos-sin-morir-en-el-intento/?srsltid=AYCX9vI-tyYSVOQz7fDPa10f2sefPqwR3UHDeM3Tz1xMUk1dB5c2wRKf) define Data sheet como un documento que recopila información detallada sobre las características, el funcionamiento, el uso y las especificaciones técnicas de un componente electrónico, en este caso aplicado a circuitos y subcircuitos digitales.
+
+Este tipo de documentación suele ser elaborada por el fabricante del componente o por quien diseña e implementa el circuito.
+
+Generalmente, incluye información como:
+- Diagramas del circuito.
+- Gráficos y tablas de verdad.
+- Guías de uso y funcionamiento.
+- Especificaciones de entradas y salidas.
+- Descripción del comportamiento del circuito.
+
 ### Palanca: lectura del joystick
 
 La palanca debe iniciar una jugada únicamente cuando se mueve hacia abajo. Además, el circuito debe distinguir entre detectar ese movimiento y permitir que influya en el juego: durante los estados de Juego y Victoria, mover la palanca no debe iniciar otra jugada. La letra pide mostrar ambas condiciones mediante dos LEDs.
 
 Para estudiar la entrada elegimos el componente **Joystick** de Logisim. Según su [documentación](https://cburch.com/logisim/docs/2.7/en/html/libs/io/joystick.html), tiene dos salidas: el pin superior tiene la coordenada horizontal X y el inferior, la coordenada vertical Y. Como nos interesa el movimiento hacia abajo, decidimos utilizar solamente Y. La documentación también indica que el valor de reposo corresponde al centro, que arriba vale 1 y que abajo alcanza el valor máximo permitido por el ancho de bits configurado.
 
-Al colocar el joystick observamos que estaba configurado con 4 bits por coordenada. Para esta primera prueba redujimos el ancho a **2 bits**, suficiente para distinguir arriba, centro y abajo. Necesitábamos ver qué valor producía cada posición, por lo que consultamos a Codex cómo observar la salida en Logisim. A partir de esa consulta conectamos un  Probe  al pin Y y seleccionamos la visualización en binario
+Al colocar el joystick observamos que estaba configurado con 4 bits por coordenada. Para esta primera prueba redujimos el ancho a **2 bits**, suficiente para distinguir arriba, centro y abajo. Necesitábamos ver qué valor producía cada posición, por lo que consultamos a Codex cómo observar la salida en Logisim. A partir de esa consulta conectamos un Probe  al pin Y y seleccionamos la visualización en binario. Esto nos permitió estudiar el componente lo que nos permitió escribir la [hoja de especificaciones del joystick](hoja_especificacion_jostick.md).
 
 | Posición vertical | Salida Y con 2 bits |
 | --- | --- |
@@ -177,3 +195,8 @@ Todavía falta implementar que una palanca sostenida no inicie otra jugada.
   <img src="../img/palanca_con_leds.png" alt="Implementacion de palanca con led influye y deteccion de palanca"400"><br>
   <em>Figura 13. Implementacion de palanca con led influye y deteccion de palanca.</em>
 </p>
+
+### Implementar deteccion de palanca sostenida
+La idea que queremos implementar aqui es que cuando la palanca toma el valor 11 y se mantiene, no debemos actual instantaneamente, sino que debemos actuar cuando toma el valor 11 y vuelve al valor de reposo 10. 
+Para cumplir esto podemos modificar la implementacion de *controlador_palanca* e incluir un filtro en la salida de actuacicon.
+Idea 1: Podemos implementar un circuito que tome un 1 (cuando la palanca baja del todo) y lo guarde en memoria hasta que una entrada de control marque que se volvio a la possicon 10 (reposo de la palanca). Cuando esto ocurra, manda el 1 por la salida. Que debe pasar despues? vuelve a ser la salida 0? o sea se envia un pulso de 1? o se debe mantener el 1? no estoy seguro, preguntarle a rafa/profe
