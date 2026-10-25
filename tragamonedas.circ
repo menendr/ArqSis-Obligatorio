@@ -62,7 +62,9 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(180,260)" to="(240,260)"/>
     <wire from="(120,500)" to="(180,500)"/>
     <wire from="(240,260)" to="(300,260)"/>
+    <wire from="(320,490)" to="(320,500)"/>
     <wire from="(300,240)" to="(300,260)"/>
+    <wire from="(210,500)" to="(320,500)"/>
     <wire from="(180,240)" to="(180,260)"/>
     <wire from="(120,480)" to="(120,500)"/>
     <wire from="(240,240)" to="(240,260)"/>
@@ -72,7 +74,6 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(260,180)" to="(260,210)"/>
     <wire from="(310,180)" to="(310,210)"/>
     <wire from="(290,180)" to="(290,210)"/>
-    <wire from="(210,500)" to="(250,500)"/>
     <wire from="(180,180)" to="(180,210)"/>
     <wire from="(160,180)" to="(160,210)"/>
     <wire from="(190,180)" to="(190,210)"/>
@@ -82,41 +83,48 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(220,180)" to="(220,210)"/>
     <wire from="(230,180)" to="(230,210)"/>
     <wire from="(250,180)" to="(250,210)"/>
-    <wire from="(100,500)" to="(120,500)"/>
+    <wire from="(320,500)" to="(360,500)"/>
+    <wire from="(90,500)" to="(120,500)"/>
     <wire from="(90,280)" to="(90,330)"/>
     <wire from="(110,260)" to="(180,260)"/>
-    <comp loc="(220,210)" name="ImageROM">
+    <comp loc="(280,210)" name="ImageROM">
       <a name="facing" val="north"/>
     </comp>
-    <comp lib="5" loc="(280,180)" name="DotMatrix"/>
-    <comp lib="5" loc="(220,180)" name="DotMatrix"/>
-    <comp loc="(160,210)" name="ImageROM">
-      <a name="facing" val="north"/>
-      <a name="labelloc" val="south"/>
+    <comp lib="5" loc="(90,490)" name="Joystick">
+      <a name="bits" val="2"/>
     </comp>
     <comp lib="4" loc="(110,260)" name="Counter">
       <a name="width" val="2"/>
       <a name="max" val="0x3"/>
     </comp>
-    <comp loc="(210,500)" name="controlador_palanca">
-      <a name="label" val="Controlador Palanca"/>
-    </comp>
+    <comp lib="5" loc="(220,180)" name="DotMatrix"/>
     <comp lib="0" loc="(120,480)" name="Probe">
       <a name="facing" val="south"/>
     </comp>
-    <comp lib="5" loc="(160,180)" name="DotMatrix"/>
-    <comp lib="5" loc="(100,490)" name="Joystick">
-      <a name="bits" val="2"/>
+    <comp lib="5" loc="(320,490)" name="LED">
+      <a name="facing" val="south"/>
+      <a name="label" val="Detección Palanca"/>
+      <a name="labelloc" val="north"/>
     </comp>
-    <comp lib="0" loc="(250,500)" name="Pin">
+    <comp loc="(160,210)" name="ImageROM">
+      <a name="facing" val="north"/>
+      <a name="labelloc" val="south"/>
+    </comp>
+    <comp lib="5" loc="(160,180)" name="DotMatrix"/>
+    <comp loc="(210,500)" name="controlador_palanca">
+      <a name="label" val="Controlador Palanca"/>
+    </comp>
+    <comp lib="0" loc="(360,500)" name="Pin">
       <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+    </comp>
+    <comp loc="(220,210)" name="ImageROM">
+      <a name="facing" val="north"/>
     </comp>
     <comp lib="0" loc="(90,330)" name="Clock">
       <a name="facing" val="north"/>
     </comp>
-    <comp loc="(280,210)" name="ImageROM">
-      <a name="facing" val="north"/>
-    </comp>
+    <comp lib="5" loc="(280,180)" name="DotMatrix"/>
   </circuit>
   <circuit name="ImageROM">
     <a name="circuit" val="ImageROM"/>
@@ -142,6 +150,11 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(350,460)" to="(390,460)"/>
     <wire from="(350,550)" to="(390,550)"/>
     <wire from="(350,190)" to="(390,190)"/>
+    <comp lib="0" loc="(390,460)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="7"/>
+    </comp>
     <comp lib="4" loc="(350,280)" name="ROM">
       <a name="addrWidth" val="2"/>
       <a name="dataWidth" val="7"/>
@@ -149,11 +162,11 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
 43 3e 1b
 </a>
     </comp>
-    <comp lib="4" loc="(350,550)" name="ROM">
+    <comp lib="4" loc="(350,460)" name="ROM">
       <a name="addrWidth" val="2"/>
       <a name="dataWidth" val="7"/>
       <a name="contents">addr/data: 2 7
-60 6 8
+58 3e 6c
 </a>
     </comp>
     <comp lib="4" loc="(350,190)" name="ROM">
@@ -163,7 +176,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
 40 6 8
 </a>
     </comp>
-    <comp lib="0" loc="(390,190)" name="Pin">
+    <comp lib="0" loc="(390,280)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="width" val="7"/>
@@ -179,29 +192,24 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="width" val="2"/>
       <a name="labelloc" val="east"/>
     </comp>
-    <comp lib="0" loc="(390,460)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="7"/>
-    </comp>
-    <comp lib="0" loc="(390,280)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="7"/>
-    </comp>
-    <comp lib="4" loc="(350,460)" name="ROM">
+    <comp lib="4" loc="(350,550)" name="ROM">
       <a name="addrWidth" val="2"/>
       <a name="dataWidth" val="7"/>
       <a name="contents">addr/data: 2 7
-58 3e 6c
+60 6 8
 </a>
     </comp>
-    <comp lib="0" loc="(390,370)" name="Pin">
+    <comp lib="0" loc="(390,190)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="width" val="7"/>
     </comp>
     <comp lib="0" loc="(390,550)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="7"/>
+    </comp>
+    <comp lib="0" loc="(390,370)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="width" val="7"/>
@@ -218,16 +226,16 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(190,160)" to="(230,160)"/>
     <wire from="(110,170)" to="(110,180)"/>
     <wire from="(40,180)" to="(90,180)"/>
-    <comp lib="0" loc="(90,180)" name="Splitter"/>
     <comp lib="1" loc="(190,160)" name="AND Gate">
       <a name="inputs" val="2"/>
     </comp>
-    <comp lib="0" loc="(40,180)" name="Pin">
-      <a name="width" val="2"/>
-    </comp>
+    <comp lib="0" loc="(90,180)" name="Splitter"/>
     <comp lib="0" loc="(230,160)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
+    </comp>
+    <comp lib="0" loc="(40,180)" name="Pin">
+      <a name="width" val="2"/>
     </comp>
   </circuit>
 </project>
