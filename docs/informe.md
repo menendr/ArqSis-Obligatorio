@@ -151,9 +151,29 @@ La expresión vale 1 para `11` y 0 para `01` y `10`. Armamos esta lógica en el 
   <em>Figura 10. Circuito controlador de palanca.</em>
 </p>
 
-Detectar que la palanca está abajo no equivale a aceptar una jugada nueva, porque la señal permanece en 1 mientras la sostenemos. En una etapa posterior tendremos que detectar un nuevo movimiento hacia abajo y habilitarlo solo si el juego está en Espera y quedan créditos. Esa condición controlará el LED **Influye** y el inicio de la jugada.
+Detectar que la palanca está abajo no equivale a aceptar una jugada nueva, porque la señal permanece en 1 mientras la sostenemos. En una etapa posterior tendremos que detectar un nuevo movimiento hacia abajo y habilitarlo solo si el juego está en Espera. Esa condición controlará el LED **Influye** y el inicio de la jugada.
 
 <p align="center">
   <img src="../img/palanca.png" alt="Joystick conectado al subcircuito controlador_palanca en el circuito principal" width="400"><br>
   <em>Figura 11. Conexión del joystick al controlador de la palanca.</em>
+</p>
+
+### Implementado el led Influye
+Para comprobar cuándo la palanca puede afectar al juego, agregamos al subcircuito *controlador_palanca* una entrada de 2 bits para el estado actual. En esta prueba representamos Espera con 11 e ingresamos ese valor manualmente.
+
+Separamos los bits del estado y usamos una compuerta AND para obtener en_espera. Después combinamos esa señal con palanca_abajo, obtenida anteriormente. Así, la señal combinada se activa cuando la palanca está abajo y el estado indicado es Espera. 
+
+
+<p align="center">
+  <img src="../img/controlador_palanca_led_influye.png" alt="Controlador de palanca con led influye="400"><br>
+  <em>Figura 12. Controlador de palanca con led influye.</em>
+</p>
+
+Del AND de las entradas de estado podemos implementar una 2da salida a modo de flag para saber si tenemos que prender el led Influye.
+
+Todavía falta implementar que una palanca sostenida no inicie otra jugada.
+
+<p align="center">
+  <img src="../img/palanca_con_leds.png" alt="Implementacion de palanca con led influye y deteccion de palanca"400"><br>
+  <em>Figura 13. Implementacion de palanca con led influye y deteccion de palanca.</em>
 </p>
