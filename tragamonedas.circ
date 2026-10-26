@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project source="2.7.1" version="1.0">
-  This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
-
-  <lib desc="#Wiring" name="0"/>
+This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
+<lib desc="#Wiring" name="0"/>
   <lib desc="#Gates" name="1"/>
   <lib desc="#Plexers" name="2"/>
   <lib desc="#Arithmetic" name="3"/>
@@ -60,48 +59,88 @@
     <a name="clabel" val=""/>
     <a name="clabelup" val="east"/>
     <a name="clabelfont" val="SansSerif plain 12"/>
+    <wire from="(130,430)" to="(130,500)"/>
+    <wire from="(180,260)" to="(240,260)"/>
+    <wire from="(240,260)" to="(300,260)"/>
+    <wire from="(210,500)" to="(270,500)"/>
+    <wire from="(130,500)" to="(180,500)"/>
+    <wire from="(340,500)" to="(340,510)"/>
     <wire from="(300,240)" to="(300,260)"/>
+    <wire from="(100,490)" to="(100,510)"/>
     <wire from="(180,240)" to="(180,260)"/>
     <wire from="(240,240)" to="(240,260)"/>
     <wire from="(320,180)" to="(320,210)"/>
     <wire from="(300,180)" to="(300,210)"/>
     <wire from="(280,180)" to="(280,210)"/>
     <wire from="(260,180)" to="(260,210)"/>
+    <wire from="(310,180)" to="(310,210)"/>
+    <wire from="(290,180)" to="(290,210)"/>
+    <wire from="(270,470)" to="(270,500)"/>
     <wire from="(180,180)" to="(180,210)"/>
     <wire from="(160,180)" to="(160,210)"/>
+    <wire from="(190,180)" to="(190,210)"/>
+    <wire from="(170,180)" to="(170,210)"/>
     <wire from="(200,180)" to="(200,210)"/>
     <wire from="(240,180)" to="(240,210)"/>
     <wire from="(220,180)" to="(220,210)"/>
-    <wire from="(110,260)" to="(180,260)"/>
-    <wire from="(180,260)" to="(240,260)"/>
-    <wire from="(240,260)" to="(300,260)"/>
-    <wire from="(310,180)" to="(310,210)"/>
-    <wire from="(290,180)" to="(290,210)"/>
-    <wire from="(190,180)" to="(190,210)"/>
-    <wire from="(170,180)" to="(170,210)"/>
     <wire from="(230,180)" to="(230,210)"/>
     <wire from="(250,180)" to="(250,210)"/>
+    <wire from="(340,510)" to="(380,510)"/>
+    <wire from="(70,510)" to="(100,510)"/>
+    <wire from="(100,510)" to="(180,510)"/>
     <wire from="(90,280)" to="(90,330)"/>
-    <comp lib="5" loc="(280,180)" name="DotMatrix"/>
-    <comp lib="5" loc="(160,180)" name="DotMatrix"/>
-    <comp loc="(160,210)" name="ImageROM">
-      <a name="facing" val="north"/>
-      <a name="labelloc" val="south"/>
-    </comp>
-    <comp loc="(220,210)" name="ImageROM">
-      <a name="facing" val="north"/>
-    </comp>
-    <comp lib="0" loc="(90,330)" name="Clock">
-      <a name="facing" val="north"/>
-    </comp>
+    <wire from="(110,260)" to="(180,260)"/>
+    <wire from="(210,510)" to="(340,510)"/>
     <comp loc="(280,210)" name="ImageROM">
       <a name="facing" val="north"/>
+    </comp>
+    <comp lib="6" loc="(134,409)" name="Text">
+      <a name="text" val="Harcodeado estado 11 = estado espera"/>
+    </comp>
+    <comp lib="0" loc="(130,430)" name="Pin">
+      <a name="facing" val="south"/>
+      <a name="width" val="2"/>
+    </comp>
+    <comp lib="0" loc="(380,510)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
     </comp>
     <comp lib="4" loc="(110,260)" name="Counter">
       <a name="width" val="2"/>
       <a name="max" val="0x3"/>
     </comp>
+    <comp lib="0" loc="(100,490)" name="Probe">
+      <a name="facing" val="south"/>
+    </comp>
     <comp lib="5" loc="(220,180)" name="DotMatrix"/>
+    <comp loc="(160,210)" name="ImageROM">
+      <a name="facing" val="north"/>
+      <a name="labelloc" val="south"/>
+    </comp>
+    <comp lib="5" loc="(160,180)" name="DotMatrix"/>
+    <comp loc="(210,500)" name="controlador_palanca">
+      <a name="label" val="Controlador Palanca"/>
+    </comp>
+    <comp lib="5" loc="(270,470)" name="LED">
+      <a name="facing" val="south"/>
+      <a name="label" val="Influye"/>
+      <a name="labelloc" val="north"/>
+    </comp>
+    <comp loc="(220,210)" name="ImageROM">
+      <a name="facing" val="north"/>
+    </comp>
+    <comp lib="5" loc="(340,500)" name="LED">
+      <a name="facing" val="south"/>
+      <a name="label" val="Detección Palanca"/>
+      <a name="labelloc" val="north"/>
+    </comp>
+    <comp lib="0" loc="(90,330)" name="Clock">
+      <a name="facing" val="north"/>
+    </comp>
+    <comp lib="5" loc="(280,180)" name="DotMatrix"/>
+    <comp lib="5" loc="(70,500)" name="Joystick">
+      <a name="bits" val="2"/>
+    </comp>
   </circuit>
   <circuit name="ImageROM">
     <a name="circuit" val="ImageROM"/>
@@ -113,6 +152,11 @@
     <wire from="(90,370)" to="(210,370)"/>
     <wire from="(90,460)" to="(210,460)"/>
     <wire from="(90,550)" to="(210,550)"/>
+    <wire from="(70,370)" to="(90,370)"/>
+    <wire from="(310,270)" to="(320,270)"/>
+    <wire from="(320,360)" to="(330,360)"/>
+    <wire from="(340,540)" to="(350,540)"/>
+    <wire from="(330,450)" to="(340,450)"/>
     <wire from="(90,190)" to="(90,280)"/>
     <wire from="(90,280)" to="(90,370)"/>
     <wire from="(90,460)" to="(90,550)"/>
@@ -122,23 +166,16 @@
     <wire from="(350,460)" to="(390,460)"/>
     <wire from="(350,550)" to="(390,550)"/>
     <wire from="(350,190)" to="(390,190)"/>
-    <wire from="(70,370)" to="(90,370)"/>
-    <wire from="(310,270)" to="(320,270)"/>
-    <wire from="(320,360)" to="(330,360)"/>
-    <wire from="(340,540)" to="(350,540)"/>
-    <wire from="(330,450)" to="(340,450)"/>
+    <comp lib="0" loc="(390,460)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="7"/>
+    </comp>
     <comp lib="4" loc="(350,280)" name="ROM">
       <a name="addrWidth" val="2"/>
       <a name="dataWidth" val="7"/>
       <a name="contents">addr/data: 2 7
 43 3e 1b
-</a>
-    </comp>
-    <comp lib="4" loc="(350,190)" name="ROM">
-      <a name="addrWidth" val="2"/>
-      <a name="dataWidth" val="7"/>
-      <a name="contents">addr/data: 2 7
-40 6 8
 </a>
     </comp>
     <comp lib="4" loc="(350,460)" name="ROM">
@@ -148,10 +185,24 @@
 58 3e 6c
 </a>
     </comp>
+    <comp lib="4" loc="(350,190)" name="ROM">
+      <a name="addrWidth" val="2"/>
+      <a name="dataWidth" val="7"/>
+      <a name="contents">addr/data: 2 7
+40 6 8
+</a>
+    </comp>
     <comp lib="0" loc="(390,280)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="width" val="7"/>
+    </comp>
+    <comp lib="4" loc="(350,370)" name="ROM">
+      <a name="addrWidth" val="2"/>
+      <a name="dataWidth" val="7"/>
+      <a name="contents">addr/data: 2 7
+4c 7f 3e
+</a>
     </comp>
     <comp lib="0" loc="(70,370)" name="Pin">
       <a name="width" val="2"/>
@@ -164,17 +215,7 @@
 60 6 8
 </a>
     </comp>
-    <comp lib="0" loc="(390,460)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="7"/>
-    </comp>
     <comp lib="0" loc="(390,190)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="7"/>
-    </comp>
-    <comp lib="0" loc="(390,370)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="width" val="7"/>
@@ -184,12 +225,64 @@
       <a name="output" val="true"/>
       <a name="width" val="7"/>
     </comp>
-    <comp lib="4" loc="(350,370)" name="ROM">
-      <a name="addrWidth" val="2"/>
-      <a name="dataWidth" val="7"/>
-      <a name="contents">addr/data: 2 7
-4c 7f 3e
-</a>
+    <comp lib="0" loc="(390,370)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="7"/>
+    </comp>
+  </circuit>
+  <circuit name="controlador_palanca">
+    <a name="circuit" val="controlador_palanca"/>
+    <a name="clabel" val=""/>
+    <a name="clabelup" val="east"/>
+    <a name="clabelfont" val="SansSerif plain 12"/>
+    <wire from="(220,190)" to="(250,190)"/>
+    <wire from="(190,350)" to="(250,350)"/>
+    <wire from="(190,310)" to="(250,310)"/>
+    <wire from="(180,220)" to="(180,230)"/>
+    <wire from="(300,210)" to="(320,210)"/>
+    <wire from="(320,240)" to="(340,240)"/>
+    <wire from="(300,330)" to="(320,330)"/>
+    <wire from="(320,280)" to="(340,280)"/>
+    <wire from="(190,340)" to="(190,350)"/>
+    <wire from="(320,210)" to="(500,210)"/>
+    <wire from="(120,350)" to="(170,350)"/>
+    <wire from="(390,260)" to="(500,260)"/>
+    <wire from="(320,280)" to="(320,330)"/>
+    <wire from="(190,310)" to="(190,330)"/>
+    <wire from="(220,190)" to="(220,210)"/>
+    <wire from="(180,230)" to="(250,230)"/>
+    <wire from="(120,230)" to="(160,230)"/>
+    <wire from="(180,210)" to="(220,210)"/>
+    <wire from="(320,210)" to="(320,240)"/>
+    <comp lib="0" loc="(120,230)" name="Pin">
+      <a name="width" val="2"/>
+      <a name="label" val="Estado de Juego"/>
+    </comp>
+    <comp lib="0" loc="(170,350)" name="Splitter"/>
+    <comp lib="1" loc="(390,260)" name="AND Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(500,260)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="Activacion Palanca"/>
+    </comp>
+    <comp lib="0" loc="(120,350)" name="Pin">
+      <a name="width" val="2"/>
+      <a name="label" val="Palanca"/>
+    </comp>
+    <comp lib="0" loc="(160,230)" name="Splitter"/>
+    <comp lib="0" loc="(500,210)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="Influye"/>
+    </comp>
+    <comp lib="1" loc="(300,210)" name="AND Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="1" loc="(300,330)" name="AND Gate">
+      <a name="inputs" val="2"/>
     </comp>
   </circuit>
 </project>
