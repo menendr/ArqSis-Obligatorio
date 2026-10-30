@@ -119,6 +119,64 @@ Al volver al circuito principal, podemos usar este subcircuito como si fuera un 
 
 De esta forma logramos esconder toda la lógica de las ROM dentro de un único componente y dejar el circuito principal bastante más limpio. Además, como el tragamonedas necesita tres displays, podemos reutilizar exactamente el mismo subcircuito para los tres sin tener que volver a armar toda la lógica de selección de imágenes.
 
+##  Máquina de estados
+
+### Primer acercamiento
+
+A partir del análisis de la letra del problema, identificamos tres estados posibles para nuestra máquina de estados: **Espera, Juego y Victoria**.
+
+Para representarlos, decidimos utilizar dos bits, **A y B**, que nos permiten codificar hasta cuatro estados diferentes. Asignamos las siguientes combinaciones:
+
+| A | B | Estado |
+|---|---|---|
+| 0 | 0 | Espera |
+| 0 | 1 | Juego |
+| 1 | 0 | No utilizado |
+| 1 | 1 | Victoria |
+
+Una vez definidos los estados, identificamos los eventos y las condiciones que determinan las transiciones entre ellos:
+
+- **Espera (00) → Juego (01):** ocurre cuando el jugador acciona la palanca, dando inicio a una nueva jugada (Evento 1)
+- **Juego (01) → Espera (00):** ocurre cuando finaliza la jugada y el jugador no obtiene ninguna de las combinaciones ganadoras (Evento 0)
+- **Juego (01) → Victoria (11):** ocurre cuando finaliza la jugada y el jugador obtiene una de las tres combinaciones ganadoras posibles. (Evento 1)
+- **Victoria (11) → Espera (00):** después de alcanzar el estado de Victoria, la máquina regresa al estado de Espera, independientemente del valor de las entradas. (Evento X)
+
+Con esta información, construimos la **tabla de verdad**, utilizando las variables QA y QB para representar el estado actual, y QA+1 y QB+1 para representar el estado siguiente.
+
+![image](..\img\cuadernola1.jpg.jpeg)
+
+
+A partir de la tabla de transición, utilizamos  **Karnaugh** para simplificar las funciones lógicas correspondientes a los bits del estado siguiente.
+
+Como resultado, obtuvimos las siguientes expresiones:
+
+QA+1 =\A.B.e
+
+QB+1 = \A.e
+
+Estas expresiones nos permiten implementar la lógica combinacional encargada de determinar el siguiente estado de la máquina.
+
+Finalmente, para almacenar el estado actual y permitir que la máquina conserve su estado entre transiciones, incorporamos **dos Data Sync D**, uno para cada bit de estado.
+
+Las entradas de estos componentes reciben los valores calculados por las funciones QA+1 y QB+1, mientras que sus salidas representan los valores actuales de QA y QB.
+
+De esta manera, combinando la lógica de transición con los elementos de memoria, obtenemos una primera implementación de nuestra máquina de estados.
+
+![image](..\img\cuadernola2.jpg.jpeg)
+
+### Implementamos el circuito en Logisim
+Luego de tener el Circuito ideado en papel, podemos pasar a **LogiSim** y crear un nuevo circuito en nuestro trabajo. Este circuito se llamará **maquina_de_estados**, contará con 1 entrada (para el evento de cambio de estado) y 2 salidas A y B que representan el estado actual de la maquina de estado.
+Aca presentamos una primera implementacion del circuito:
+
+![image](..\img\maquina_de_estado_v1.png)
+
+Porque primera implementacion del circuito? Todavia tenemos incognitas si esta reprecentacion es del todo correcta.
+Dudas abiertas:
+- Nos esta faltando el estado 10, de momento no tenemos una utilidad para él.
+- Es correcto que los eventos sean de 1 solo bit?
+- En el estado 11, los eventos 0 y 1 cambian al estado 00, es esto correcto? independientemente del valor de entrada (evento) la maquina cambiara instantaneamente al estado 00
+- Tenemos que implementar algo para Read, que cuando es 1 lee el evento y cuando es 0 ignora lo que le viene del evento?
+
 ## Palanca
 
 ### Data sheet
