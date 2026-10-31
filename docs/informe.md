@@ -19,37 +19,31 @@ En este informe documentamos el proceso de desarrollo de los distintos módulos 
 
 Después de leer la letra del obligatorio en clase y siguiendo la recomendación del profesor, decidimos arrancar el proyecto por los displays que muestran los símbolos del tragamonedas.
 
-Mirando las capturas de pantalla de la letra, pudimos identificar que los símbolos se muestran usando el componente LED Matrix de Logisim, configurado con 5 LEDs de ancho y 7 de alto.
+Mirando las capturas de la letra, vimos que se usaba una matriz LED de 5 columnas y 7 filas. Al colocar el componente nos encontramos con cinco pines en la parte de abajo. Como no teníamos claro cómo funcionaban, consultamos la documentación de LED Matrix [1](#fuente-1). Ahí entendimos que cada pin controla una columna con 7 bits, uno por fila.
 
-Al colocar el componente por primera vez, vimos que tenía cinco pines en la parte de abajo, uno por cada columna. Como no teníamos del todo claro cómo funcionaban, buscamos la [documentación del componente LED Matrix](https://baillifard.com/logisim/en/html/libs/io/dotmat.html).
-
-Leyendo la documentación entendimos que cada uno de estos pines controla una columna del display. Como cada columna tiene 7 LEDs, la entrada correspondiente es de 7 bits, donde cada bit determina si uno de los LEDs de esa columna está prendido o apagado.
-
-Para probarlo, primero colocamos un único pin de entrada de 7 bits y lo conectamos a las cinco columnas. Fuimos cambiando manualmente el valor de cada bit y pudimos ver cómo cambiaban los LEDs encendidos en la matriz. Como todas las columnas estaban conectadas a la misma entrada, el mismo patrón se repetía en las cinco columnas.
+Para probarlo, conectamos un único pin de entrada de 7 bits a las cinco columnas. Fuimos cambiando los bits a mano para ver qué LEDs se prendían. Como todas recibían el mismo valor, el patrón se repetía en las cinco columnas.
 
 <p align="center">
   <img src="../img/led-matrix-entrada-compartida.png" alt="Primera prueba del LED Matrix con una entrada compartida" width="400"><br>
   <em>Figura 1. Matriz LED con una entrada compartida para las cinco columnas.</em>
 </p>
 
-Después probamos conectar un pin de 7 bits distinto a cada una de las cinco columnas. De esta forma pudimos darle un valor diferente a cada columna y controlar individualmente todos los LEDs de la matriz.
+Después conectamos un pin de 7 bits distinto a cada columna. Así pudimos darle un valor diferente a cada una y controlar los LEDs por separado.
 
 <p align="center">
   <img src="../img/led-matrix-entradas-independientes.png" alt="Prueba del LED Matrix con entradas independientes" width="400"><br>
   <em>Figura 2. Matriz LED con una entrada independiente por columna.</em>
 </p>
 
-Con esta prueba entendimos cómo controlar el display y vimos que, definiendo los cinco valores de 7 bits correspondientes a las columnas, podíamos empezar a dibujar los distintos símbolos del tragamonedas.
+Con eso ya podíamos dibujar los símbolos. Ahora nos faltaba elegir entre el **7**, la **campana**, el **rayo** y la **pantalla apagada** sin tener que cambiar los cinco valores a mano.
 
-Hasta este punto ya podíamos controlar todos los LEDs de la matriz, pero solamente estábamos mostrando una imagen a la vez, configurando manualmente los valores de las cinco columnas. Para el tragamonedas necesitábamos poder elegir entre cuatro estados distintos: el **7**, la **campana**, el **rayo** y la **pantalla apagada**.
+Para ver cómo guardar los patrones y elegir cuál mostrar, consultamos con **ChatGPT y Claude**. A partir de esas consultas empezamos a investigar las **ROM**.
 
-Buscando una forma de guardar los distintos patrones y poder elegir cuál mostrar, consultamos con **ChatGPT y Claude**. A partir de estas consultas investigamos el uso de una **ROM**.
+Una **ROM** (*Read-Only Memory*) almacena valores que se consultan mediante una dirección. La usamos para guardar los patrones de los símbolos. [2](#fuente-2)
 
-Una ROM (*Read-Only Memory*) es una memoria que permite almacenar valores que luego pueden ser consultados a partir de una dirección. En nuestro caso no necesitamos modificar estos valores mientras el circuito está funcionando, sino guardar previamente los patrones correspondientes a cada símbolo y después seleccionar cuál queremos mostrar. Logisim incluye la ROM dentro de su biblioteca de componentes de memoria y permite configurar tanto la cantidad de bits utilizados para la dirección como el tamaño de los datos almacenados. ([Documentación de componentes de memoria de Logisim](https://www.baillifard.com/logisim/en/html/guide/mem/index.html))
+Configuramos cada ROM con **2 bits de dirección** y **7 bits de datos**. Con 2 bits tenemos cuatro posiciones (`00`, `01`, `10` y `11`), justo las que necesitábamos para los tres símbolos y la pantalla apagada. En cada posición guardamos el patrón de una columna. Cada uno de los 7 bits de datos indica si el LED de una fila tiene que estar prendido (`1`) o apagado (`0`).
 
-Para nuestro caso configuramos cada ROM con **2 bits de dirección** y **7 bits de datos**. Al tener 2 bits de dirección contamos con cuatro posiciones posibles (`00`, `01`, `10` y `11`), exactamente la cantidad que necesitamos para nuestros cuatro estados. En cada posición guardamos el patrón de una columna para un símbolo determinado. Los 7 bits de datos corresponden a las 7 filas de esa columna: cada bit indica si el LED de su fila debe estar encendido (`1`) o apagado (`0`).
-
-Asignamos las direcciones de la siguiente forma:
+Repartimos las direcciones así:
 
 | Dirección | Imagen |
 |---|---|
@@ -58,11 +52,11 @@ Asignamos las direcciones de la siguiente forma:
 | `10` | Rayo |
 | `11` | Pantalla apagada |
 
-Para cargar las imágenes, primero definimos qué LEDs tenían que estar prendidos en cada columna de cada símbolo y representamos esa columna como un valor binario de 7 bits. Como el editor de contenido de las ROM en Logisim muestra los valores en hexadecimal, convertimos cada valor de binario a hexadecimal y lo cargamos en la dirección correspondiente. Por ejemplo, el patrón binario `1000000` se escribe como `40` en hexadecimal. La conversión cambia solamente la forma de escribir el valor: la ROM sigue almacenando y entregando los mismos 7 bits que controlan los LEDs de la columna. ([Documentación de memoria de Logisim](https://www.baillifard.com/logisim/en/html/guide/mem/mem-v3word.html))
+Para cargar los símbolos, primero elegimos qué LEDs debían prenderse en cada columna y escribimos ese patrón en 7 bits. Como el editor de las ROM muestra los valores en hexadecimal, convertimos los patrones antes de cargarlos. Por ejemplo, `1000000` en binario es `40` en hexadecimal. Cambia la forma de escribirlo, pero el valor y los 7 bits que recibe la columna siguen siendo los mismos. [3](#fuente-3)
 
-Como cada columna del LED Matrix puede tener un patrón distinto, usamos **cinco ROM**, una para cada columna. Las cinco comparten la misma entrada de dirección de 2 bits, pero cada una guarda los valores correspondientes a su propia columna.
+Usamos **cinco ROM**, una por columna, porque cada columna necesita su propio patrón. Todas reciben la misma dirección de 2 bits, pero cada una guarda los valores de su columna.
 
-De esta forma, al cambiar únicamente el valor del pin de entrada podemos cambiar la imagen completa que aparece en el display. Por ejemplo, al ingresar `00`, las cinco ROM buscan los valores correspondientes al 7 y cada una manda sus 7 bits a su respectiva columna, formando entre todas la imagen completa.
+Así, con cambiar una sola dirección, las cinco ROM entregan sus patrones y se forma el símbolo completo.
 
 <table>
   <tr>
@@ -87,37 +81,69 @@ De esta forma, al cambiar únicamente el valor del pin de entrada podemos cambia
   </tr>
 </table>
 
-Con esto ya teníamos un circuito capaz de mostrar cualquiera de los tres símbolos, además de apagar completamente el display, utilizando solamente una entrada de 2 bits.
+El circuito ya tenía bastantes componentes y cables. Como íbamos a necesitar tres displays, buscamos cómo reutilizarlo sin copiar todo tres veces. Consultamos nuevamente con las herramientas de IA y empezamos a usar **subcircuitos** en Logisim.
 
-A medida que agregamos las cinco ROM, sus conexiones y el LED Matrix, el circuito empezó a quedar bastante grande y ocupado. Como íbamos a necesitar tres displays iguales en el tragamonedas, repetir todo este circuito tres veces iba a hacer que el circuito principal quedara todavía más difícil de leer.
+Un **subcircuito** agrupa componentes y conexiones para reutilizarlos como un único bloque, con una interfaz definida por sus pines. [4](#fuente-4)
 
-Consultamos nuevamente con las herramientas de IA buscando una forma de ordenar y reducir el circuito, y a partir de esto investigamos el uso de **subcircuitos** en Logisim.
+Armamos entonces `controlador_display`, que recibe el número del símbolo y entrega los valores para las cinco columnas del display.
 
-Logisim permite crear circuitos nuevos dentro de un mismo proyecto y después utilizarlos como componentes dentro de otros circuitos. Los pines de entrada y salida que colocamos dentro de un circuito pasan a formar la interfaz del componente cuando lo usamos como subcircuito. Así podemos separar partes del proyecto y reutilizar el mismo diseño varias veces sin tener que copiar todos sus componentes y conexiones. ([Using subcircuits — Logisim User's Guide](https://baillifard.com/logisim/en/html/guide/subcirc/sub-using.html))
-
-Decidimos entonces crear un subcircuito para encargarse únicamente de transformar el número del símbolo que queremos mostrar en los valores necesarios para las cinco columnas del display.
-
-Este circuito tiene:
+En esta primera versión, el circuito tenía:
 
 - un pin de entrada de **2 bits**, que indica qué imagen queremos mostrar;
 - **cinco ROM**, una por cada columna;
 - cinco pines de salida de **7 bits**, uno por cada columna del LED Matrix.
-
-Las cinco ROM reciben la misma dirección de 2 bits. Cada una devuelve el patrón de 7 bits correspondiente a su columna y este valor sale por uno de los cinco pines del subcircuito.
 
 <p align="center">
   <img src="../img/display-rom-subcircuito.png" alt="Subcircuito encargado de almacenar los símbolos del display" width="400"><br>
   <em>Figura 7. Subcircuito de almacenamiento y selección de los símbolos.</em>
 </p>
 
-Al volver al circuito principal, podemos usar este subcircuito como si fuera un componente más. Solamente tenemos que conectarle la entrada de 2 bits y conectar sus cinco salidas a las cinco columnas del LED Matrix. Los pines definidos dentro de un subcircuito son justamente los que Logisim utiliza para crear su interfaz cuando se lo coloca dentro de otro circuito. ([Documentación del componente Pin de Logisim](https://www.baillifard.com/logisim/en/html/libs/wiring/pin.html))
+En el circuito principal conectamos la entrada de selección y las cinco salidas del subcircuito a las columnas del LED Matrix.
 
 <p align="center">
   <img src="../img/display-subcircuito-conectado.png" alt="Subcircuito conectado al LED Matrix" width="400"><br>
   <em>Figura 8. Conexión del subcircuito a las cinco columnas de la matriz LED.</em>
 </p>
 
-De esta forma logramos esconder toda la lógica de las ROM dentro de un único componente y dejar el circuito principal bastante más limpio. Además, como el tragamonedas necesita tres displays, podemos reutilizar exactamente el mismo subcircuito para los tres sin tener que volver a armar toda la lógica de selección de imágenes.
+Así pudimos usar el mismo diseño en las tres pantallas y dejar más ordenado el circuito principal.
+
+### Animación y detención de los displays
+
+Una vez que pudimos mostrar los símbolos, seguimos con la animación. Nos apoyamos en ChatGPT para elegir los componentes y revisar cómo configurarlos. Usamos un **contador**, que guarda un valor y puede incrementarlo en cada flanco activo del reloj. El **reloj** alterna periódicamente su salida para marcar el avance del circuito. [5](#fuente-5), [6](#fuente-6) Conectamos un contador de 2 bits a `controlador_display`, con un máximo de 2 y vuelta a cero al superarlo. Así conseguimos la secuencia `00 → 01 → 10 → 00`: siete, campana y rayo, sin pasar por `11`, que apaga la pantalla.
+
+Al principio probamos que las pantallas mostraran símbolos distintos durante la animación. Después preferimos simplificar: todas las tiradas arrancan con el mismo símbolo y los tres displays recorren la misma secuencia al mismo tiempo. Cada uno tiene su contador, conectado al reloj común. Esto es solo la animación; el resultado aleatorio de la jugada lo vamos a incorporar más adelante.
+
+Para elegir entre animación y resultado, ampliamos `controlador_display` con dos entradas de 2 bits, `simbolo_animacion` y `resultado`, y una entrada de control de 1 bit, `detener`. Un **multiplexor** copia a su salida una de sus entradas de datos según una señal de selección. [7](#fuente-7) Su salida alimenta la dirección de las cinco ROM. Con la señal `detener` en 0 selecciona el símbolo del contador de animación; con `detener` en 1 selecciona el resultado que debe mostrar esa pantalla. Por ahora elegimos los resultados a mano con pines de 2 bits. Los contadores siguen avanzando, pero cuando activamos `detener` la pantalla muestra el resultado fijo.
+
+<p align="center">
+  <img src="../img/controlador-display-multiplexor.png" alt="Controlador de display con multiplexor y cinco ROM" width="400"><br>
+  <em>Figura 9. Selección entre animación y resultado dentro de controlador_display.</em>
+</p>
+
+Para que las pantallas se fueran deteniendo de a una, agregamos un contador de tiempo de 3 bits al mismo reloj. Un **comparador** indica si un valor es mayor, igual o menor que otro; una compuerta **OR** entrega 1 si al menos una de sus entradas vale 1. [8](#fuente-8), [9](#fuente-9) Usamos tres comparadores y una OR por pantalla para combinar las salidas de mayor e igual y mantener activa cada señal desde su umbral:
+
+| Valor del contador de tiempo | Display 1 | Display 2 | Display 3 |
+|---|---|---|---|
+| 0 a 4 | Animación | Animación | Animación |
+| 5 | Resultado | Animación | Animación |
+| 6 | Resultado | Resultado | Animación |
+| 7 | Resultado | Resultado | Resultado |
+
+En la prueba nos pasó que el comparador marcaba 1, 2 y 3 como mayores que `101`, cuando esperábamos que lo leyera como 5. Revisando la configuración vimos que estaba comparando con signo: en 3 bits, `101` es −3. Lo cambiamos a **Unsigned / Sin signo** y la comparación quedó como esperábamos. Dejamos los tres comparadores con esa configuración.
+
+Dejamos el contador de tiempo fijo en 7 al llegar al máximo, para que la animación no vuelva a empezar sola. Primero usamos un botón para reiniciarlo y repetir las pruebas. Después juntamos el contador, los comparadores y las OR en `controlador_animacion`, con entradas de reloj y reinicio y una salida de detención para cada display. Reemplazamos los pines de comparación por componentes **Constante**, que entregan permanentemente el valor configurado en sus propiedades. Los configuramos con 3 bits y valores 5, 6 y 7, conservando los umbrales al reiniciar la simulación. [10](#fuente-10)
+
+<p align="center">
+  <img src="../img/controlador-animacion-detencion.png" alt="Controlador de animación con contador y comparadores" width="400"><br>
+  <em>Figura 10. Control del tiempo y de la detención progresiva de las pantallas.</em>
+</p>
+
+<p align="center">
+  <img src="../img/displays-detencion-progresiva.png" alt="Prueba de detención progresiva de los displays" width="400"><br>
+  <em>Figura 11. Prueba de la selección de resultados y de la detención por etapas.</em>
+</p>
+
+Probamos con resultados fijos elegidos a mano y la detención funcionó como esperábamos: la primera pantalla mostró su resultado al llegar a 5, la segunda al llegar a 6 y la tercera al llegar a 7. Cada una quedó fija mientras las otras seguían animándose. Con las tres detenidas, al bajar la palanca arranca otra vez la animación. Por ahora, si la volvemos a bajar mientras está en curso, el contador de tiempo vuelve a cero y la secuencia se alarga. Nos falta bloquear esas nuevas activaciones durante la jugada, agregar los resultados aleatorios y hacer el parpadeo de victoria.
 
 ## Palanca
 
@@ -126,11 +152,13 @@ De esta forma logramos esconder toda la lógica de las ROM dentro de un único c
 La letra del obligatorio iniciar con la investigacion de que es un data sheet, e implementar una una hoja de especificaciones para la palanca.
 
 #### Que es un data sheet?
-[Unit electronics](https://uelectronics.com/como-leer-hojas-de-datos-sin-morir-en-el-intento/?srsltid=AYCX9vI-tyYSVOQz7fDPa10f2sefPqwR3UHDeM3Tz1xMUk1dB5c2wRKf) define Data sheet como un documento que recopila información detallada sobre las características, el funcionamiento, el uso y las especificaciones técnicas de un componente electrónico, en este caso aplicado a circuitos y subcircuitos digitales.
+
+Unit electronics [11](#fuente-11) define Data sheet como un documento que recopila información detallada sobre las características, el funcionamiento, el uso y las especificaciones técnicas de un componente electrónico, en este caso aplicado a circuitos y subcircuitos digitales.
 
 Este tipo de documentación suele ser elaborada por el fabricante del componente o por quien diseña e implementa el circuito.
 
 Generalmente, incluye información como:
+
 - Diagramas del circuito.
 - Gráficos y tablas de verdad.
 - Guías de uso y funcionamiento.
@@ -141,7 +169,7 @@ Generalmente, incluye información como:
 
 La palanca debe iniciar una jugada únicamente cuando se mueve hacia abajo. Además, el circuito debe distinguir entre detectar ese movimiento y permitir que influya en el juego: durante los estados de Juego y Victoria, mover la palanca no debe iniciar otra jugada. La letra pide mostrar ambas condiciones mediante dos LEDs.
 
-Para estudiar la entrada elegimos el componente **Joystick** de Logisim. Según su [documentación](https://cburch.com/logisim/docs/2.7/en/html/libs/io/joystick.html), tiene dos salidas: el pin superior tiene la coordenada horizontal X y el inferior, la coordenada vertical Y. Como nos interesa el movimiento hacia abajo, decidimos utilizar solamente Y. La documentación también indica que el valor de reposo corresponde al centro, que arriba vale 1 y que abajo alcanza el valor máximo permitido por el ancho de bits configurado.
+Para estudiar la entrada elegimos el componente **Joystick** de Logisim. Según su documentación [12](#fuente-12), tiene dos salidas: el pin superior tiene la coordenada horizontal X y el inferior, la coordenada vertical Y. Como nos interesa el movimiento hacia abajo, decidimos utilizar solamente Y. La documentación también indica que el valor de reposo corresponde al centro, que arriba vale 1 y que abajo alcanza el valor máximo permitido por el ancho de bits configurado.
 
 Al colocar el joystick observamos que estaba configurado con 4 bits por coordenada. Para esta primera prueba redujimos el ancho a **2 bits**, suficiente para distinguir arriba, centro y abajo. Necesitábamos ver qué valor producía cada posición, por lo que consultamos a Codex cómo observar la salida en Logisim. A partir de esa consulta conectamos un Probe  al pin Y y seleccionamos la visualización en binario. Esto nos permitió estudiar el componente lo que nos permitió escribir la [hoja de especificaciones del joystick](hoja_especificacion_jostick.md).
 
@@ -155,7 +183,7 @@ El valor `00` no corresponde a una posición del joystick. En la prueba comproba
 
 <p align="center">
   <img src="../img/joystick-prueba.png" alt="Joystick en reposo con una sonda que muestra 10 en la salida Y" width="400"><br>
-  <em>Figura 9. Lectura de la salida vertical del joystick en pos inferior.</em>
+  <em>Figura 12. Lectura de la salida vertical del joystick en pos inferior.</em>
 </p>
 
 ### Detección de la palanca abajo
@@ -166,25 +194,25 @@ La expresión vale 1 para `11` y 0 para `01` y `10`. Armamos esta lógica en el 
 
 <p align="center">
   <img src="../img/controlador_palanca.png" alt="Circuito controlador de palanca" width="400"><br>
-  <em>Figura 10. Circuito controlador de palanca.</em>
+  <em>Figura 13. Circuito controlador de palanca.</em>
 </p>
 
 Detectar que la palanca está abajo no equivale a aceptar una jugada nueva, porque la señal permanece en 1 mientras la sostenemos. En una etapa posterior tendremos que detectar un nuevo movimiento hacia abajo y habilitarlo solo si el juego está en Espera. Esa condición controlará el LED **Influye** y el inicio de la jugada.
 
 <p align="center">
   <img src="../img/palanca.png" alt="Joystick conectado al subcircuito controlador_palanca en el circuito principal" width="400"><br>
-  <em>Figura 11. Conexión del joystick al controlador de la palanca.</em>
+  <em>Figura 14. Conexión del joystick al controlador de la palanca.</em>
 </p>
 
 ### Implementado el led Influye
+
 Para comprobar cuándo la palanca puede afectar al juego, agregamos al subcircuito *controlador_palanca* una entrada de 2 bits para el estado actual. En esta prueba representamos Espera con 11 e ingresamos ese valor manualmente.
 
 Separamos los bits del estado y usamos una compuerta AND para obtener en_espera. Después combinamos esa señal con palanca_abajo, obtenida anteriormente. Así, la señal combinada se activa cuando la palanca está abajo y el estado indicado es Espera. 
 
-
 <p align="center">
-  <img src="../img/controlador_palanca_led_influye.png" alt="Controlador de palanca con led influye="400"><br>
-  <em>Figura 12. Controlador de palanca con led influye.</em>
+  <img src="../img/controlador_palanca_led_influye.png" alt="Controlador de palanca con led influye" width="400"><br>
+  <em>Figura 15. Controlador de palanca con led influye.</em>
 </p>
 
 Del AND de las entradas de estado podemos implementar una 2da salida a modo de flag para saber si tenemos que prender el led Influye.
@@ -192,11 +220,38 @@ Del AND de las entradas de estado podemos implementar una 2da salida a modo de f
 Todavía falta implementar que una palanca sostenida no inicie otra jugada.
 
 <p align="center">
-  <img src="../img/palanca_con_leds.png" alt="Implementacion de palanca con led influye y deteccion de palanca"400"><br>
-  <em>Figura 13. Implementacion de palanca con led influye y deteccion de palanca.</em>
+  <img src="../img/palanca_con_leds.png" alt="Implementacion de palanca con led influye y deteccion de palanca" width="400"><br>
+  <em>Figura 16. Implementacion de palanca con led influye y deteccion de palanca.</em>
 </p>
 
 ### Implementar deteccion de palanca sostenida
+
 La idea que queremos implementar aqui es que cuando la palanca toma el valor 11 y se mantiene, no debemos actual instantaneamente, sino que debemos actuar cuando toma el valor 11 y vuelve al valor de reposo 10. 
 Para cumplir esto podemos modificar la implementacion de *controlador_palanca* e incluir un filtro en la salida de actuacicon.
 Idea 1: Podemos implementar un circuito que tome un 1 (cuando la palanca baja del todo) y lo guarde en memoria hasta que una entrada de control marque que se volvio a la possicon 10 (reposo de la palanca). Cuando esto ocurra, manda el 1 por la salida. Que debe pasar despues? vuelve a ser la salida 0? o sea se envia un pulso de 1? o se debe mantener el 1? no estoy seguro, preguntarle a rafa/profe
+
+## Fuentes consultadas
+
+1. <a id="fuente-1"></a>[Logisim. LED Matrix.](https://baillifard.com/logisim/en/html/libs/io/dotmat.html)
+
+2. <a id="fuente-2"></a>[Logisim. Componentes de memoria.](https://www.baillifard.com/logisim/en/html/guide/mem/index.html)
+
+3. <a id="fuente-3"></a>[Logisim. Representación y edición del contenido de memoria.](https://www.baillifard.com/logisim/en/html/guide/mem/mem-v3word.html)
+
+4. <a id="fuente-4"></a>[Logisim. Uso de subcircuitos.](https://baillifard.com/logisim/en/html/guide/subcirc/sub-using.html)
+
+5. <a id="fuente-5"></a>[Logisim. Counter (contador).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/mem/counter.html)
+
+6. <a id="fuente-6"></a>[Logisim. Clock (reloj).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/wiring/clock.html)
+
+7. <a id="fuente-7"></a>[Logisim. Multiplexer (multiplexor).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/plexers/mux.html)
+
+8. <a id="fuente-8"></a>[Logisim. Comparator (comparador).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/arith/comparator.html)
+
+9. <a id="fuente-9"></a>[Logisim. Compuertas AND, OR, NAND y NOR.](https://www.cburch.com/logisim/docs/2.7/en/html/libs/gates/basic.html)
+
+10. <a id="fuente-10"></a>[Logisim. Constant (constante).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/wiring/constant.html)
+
+11. <a id="fuente-11"></a>[Unit Electronics. Cómo leer hojas de datos sin morir en el intento.](https://uelectronics.com/como-leer-hojas-de-datos-sin-morir-en-el-intento/)
+
+12. <a id="fuente-12"></a>[Logisim. Joystick.](https://cburch.com/logisim/docs/2.7/en/html/libs/io/joystick.html)
