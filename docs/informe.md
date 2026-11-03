@@ -332,6 +332,66 @@ Probamos las transiciones de la máquina con entradas manuales y funcionaron seg
 
 Por ahora `hc` y `hp` se prueban con pines manuales, y `at` y `vt` con botones. El reinicio de la animación ahora recibe `Habilitar AND Salida` mediante una AND. Como `Habilitar` reúne Espera y créditos, la animación se reinicia solamente cuando hay una solicitud pendiente y está permitido jugar. Con esto quedan integradas la captura de la palanca, la habilitación de la tirada y el reinicio de la animación. Falta obtener las señales de fin de animación, premio y fin de victoria desde los módulos correspondientes y completar la coordinación de la animación con Juego. El estado Victoria ya está contemplado en la lógica, pero todavía no están implementados el temporizador de victoria ni el parpadeo.
 
+## Manejo de creditos 
+
+Para administrar las monedas del juego creamos el subcircuito **controlador_creditos**. Partimos de cuatro reglas: el juego debe comenzar con un saldo distinto de cero, cada tirada aceptada consume una moneda, una combinación ganadora suma su premio y, cuando el saldo llega a cero, no se puede iniciar otra jugada. Elegimos 3 créditos iniciales para facilitar las pruebas.
+
+El saldo se puede representar con 8 bits, por lo que puede tomar valores entre 0 y 255. Además de actualizarlo, el subcircuito entrega dos salidas: Saldo Actual, con el valor disponible, y Hay Creditos, que vale 1 cuando el saldo es mayor que cero. Esta última señal se puede usar para habilitar la palanca únicamente cuando sea posible jugar.
+
+### Banco de monedas
+Para guardar el saldo, podemos usar un Register que trabaje en 8 bits, esto nos permite guardar valores de 0 a 255, podemos usar eso como piso y  techo para nuestro juego, y para una proxima etapa podemos decidir que pasa cuando llegamos a 255 creditos.
+
+El Register inicia con valor 0 lo cual no nos sirve para nuestro juego en donde iniciamos en 3 creditos.
+Entonces podemos usar un multiplexor para decidir que al iniciar el programa tengamos el valor 3 hardcodeado, y luego consumiremos el valor desde el Register. 
+En el multiplexor la entrada de control (gris) decide que valor de entrada toma el multiplexor, al iniciar el progrma nos interesa que esa entrada sea 0 para que tome el valor hardcodeado de 3 creditos iniciales, luego con el primer tick de reloj, nos interesa que la entrada que el multiplexor toma, sea la entrada conectada al Register.
+Entonces para cumplir la logica de 0 para iniciar y 1 luego del primer tick, podemos guardar un 1 en un biestable D para que se active con el primer tick y quede el 1 guardado para el resto del programa.
+
+<p align="center">
+  <img src="../img/banco_de_monedas.png" alt=""Registro, multiplexor y biestable utilizados para inicializar el saldo en tres créditos" width="400"><br>
+  <em>Figura 20.  Inicialización y almacenamiento del saldo de créditos.</em>
+</p>
+
+### Entradas y salidas
+Podemos contrar con 3 entradas: 
+
+| Entrada | Función |
+|---|---|
+| Jugar | Indica que se aceptó una tirada y debe descontarse un crédito. |
+| Premio | Bus de 8 bits con la cantidad de créditos que corresponde sumar. |
+| Cobrar | Indica el tick en el que debe guardarse la suma del premio. |
+
+Jugar y Cobrar son conjuntas: deben activarse una sola vez por operación. Si Cobrar permanece en 1 durante varios ticks, el premio se suma repetidamente.
+
+Por otro lado podemos hacer uso de 2 salidas para el circuito, **Hay creditos** que nos habilita a hacer una nueva jugada y **Saldo Actual** de 8 bits a modo de visor para que el usuario puesa saber cuantos creditos restantes tiene.
+
+### Logica de negocio
+En este punto sabemos que vamos a tener que decidir entre 2 operaciones para modificar la cantidad de monedas.
+
+#### Suma
+Para implementar la suma de la cantidad de monedas actuales + el premio que gano el usuario, podemos usar el objeto **Adder** de LogiSim en donde podemos calcular saldo_actual + premio, este valor lo debemos guardar en nuestro registro, por lo que podemos hacer uso de un 2do multiplexor en donde decidimos (mediante la entrada cobrar) si guardamos el saldo actual o si calculamos la suma con un premio
+
+<p align="center">
+  <img src="../img/logica_suma_v1.png" alt="Logica para sumar el premio a la cantidad actual de monedas" width="400"><br>
+  <em>Figura 21. Logica para sumar el premio a la cantidad actual de monedas.</em>
+</p>
+
+En este punto queda por determinar que hacer cuando se llega al maximo de 255 monedas. Esto lo podemos definir en las siguentes secciones.
+
+#### Resta
+Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en su entrada superior y una constante 01 en la inferior, por lo que calcula saldo_actual − 1. Un tercer multiplexor selecciona entre conservar el saldo y guardar el resultado de la resta según la entrada Jugar. Su salida alimenta el multiplexor de cobro y, finalmente, la entrada D del registro
+
+<p align="center">
+  <img src="../img/logica_resta_v1.png" alt="Logica para restar el saldo_actual menos 1" width="400"><br>
+  <em>Figura 22. Logica para restar el saldo_actual menos 1.</em>
+</p>
+
+### Resultado final del circuito controlador_creditos
+
+<p align="center">
+  <img src="../img/controlador_creditos_v1.png" alt="Logica final para controlador_creditos" width="400"><br>
+  <em>Figura 23. Logica final controlador_creditos.</em>
+</p>
+
 ## Fuentes consultadas
 
 1. <a id="fuente-1"></a>[Logisim. LED Matrix.](https://baillifard.com/logisim/en/html/libs/io/dotmat.html)
