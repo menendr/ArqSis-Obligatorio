@@ -339,7 +339,7 @@ Para administrar las monedas del juego creamos el subcircuito **controlador_cred
 El saldo se puede representar con 8 bits, por lo que puede tomar valores entre 0 y 255. Además de actualizarlo, el subcircuito entrega dos salidas: Saldo Actual, con el valor disponible, y Hay Creditos, que vale 1 cuando el saldo es mayor que cero. Esta última señal se puede usar para habilitar la palanca únicamente cuando sea posible jugar.
 
 ### Banco de monedas
-Para guardar el saldo, podemos usar un Register que trabaje en 8 bits, esto nos permite guardar valores de 0 a 255, podemos usar eso como piso y  techo para nuestro juego, y para una proxima etapa podemos decidir que pasa cuando llegamos a 255 creditos.
+Para guardar el saldo, podemos usar un Register que trabaje en 8 bits, esto nos permite guardar valores de 0 a 255, podemos usar eso como piso y  techo para nuestro juego, y para una proxima etapa podemos decidir que pasa cuando llegamos a 255 creditos. [19](#fuente-19)
 
 El Register inicia con valor 0 lo cual no nos sirve para nuestro juego en donde iniciamos en 3 creditos.
 Entonces podemos usar un multiplexor para decidir que al iniciar el programa tengamos el valor 3 hardcodeado, y luego consumiremos el valor desde el Register. 
@@ -368,7 +368,7 @@ Por otro lado podemos hacer uso de 2 salidas para el circuito, **Hay creditos** 
 En este punto sabemos que vamos a tener que decidir entre 2 operaciones para modificar la cantidad de monedas.
 
 #### Suma
-Para implementar la suma de la cantidad de monedas actuales + el premio que gano el usuario, podemos usar el objeto **Adder** de LogiSim en donde podemos calcular saldo_actual + premio, este valor lo debemos guardar en nuestro registro, por lo que podemos hacer uso de un 2do multiplexor en donde decidimos (mediante la entrada cobrar) si guardamos el saldo actual o si calculamos la suma con un premio
+Para implementar la suma de la cantidad de monedas actuales + el premio que gano el usuario, podemos usar el objeto **Adder** de LogiSim en donde podemos calcular saldo_actual + premio, este valor lo debemos guardar en nuestro registro, por lo que podemos hacer uso de un 2do multiplexor en donde decidimos (mediante la entrada cobrar) si guardamos el saldo actual o si calculamos la suma con un premio. [20](#fuente-20)
 
 <p align="center">
   <img src="../img/logica_suma_v1.png" alt="Logica para sumar el premio a la cantidad actual de monedas" width="400"><br>
@@ -378,7 +378,7 @@ Para implementar la suma de la cantidad de monedas actuales + el premio que gano
 En este punto queda por determinar que hacer cuando se llega al maximo de 255 monedas. Esto lo podemos definir en las siguentes secciones.
 
 #### Resta
-Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en su entrada superior y una constante 01 en la inferior, por lo que calcula saldo_actual − 1. Un tercer multiplexor selecciona entre conservar el saldo y guardar el resultado de la resta según la entrada Jugar. Su salida alimenta el multiplexor de cobro y, finalmente, la entrada D del registro
+Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en su entrada superior y una constante 01 en la inferior, por lo que calcula saldo_actual − 1. Un tercer multiplexor selecciona entre conservar el saldo y guardar el resultado de la resta según la entrada Jugar. Su salida alimenta el multiplexor de cobro y, finalmente, la entrada D del registro. [21](#fuente-21)
 
 <p align="center">
   <img src="../img/logica_resta_v1.png" alt="Logica para restar el saldo_actual menos 1" width="400"><br>
@@ -390,6 +390,29 @@ Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en
 <p align="center">
   <img src="../img/controlador_creditos_v1.png" alt="Logica final para controlador_creditos" width="400"><br>
   <em>Figura 23. Logica final controlador_creditos.</em>
+</p>
+
+## Visualizador de creditos
+La letra pide mostrar el saldo al mismo tiempo en decimal, con displays de siete segmentos, y en binario, con LEDs. Como controlador_creditos guarda valores de 0 a 255 en 8 bits, necesitamos ocho LEDs y tres cifras decimales.
+
+Creamos **visualizador_creditos** para recibir el saldo y entregar cuatro salidas: una de 8 bits para los LEDs y otras tres para las unidades, decenas y centenas.
+
+Primero estudiamos el display. Tiene un pin por cada segmento y otro para el punto decimal. Los cuatro pines superiores son g, f, a, b; los inferiores son e, d, c, punto, de izquierda a derecha. Esto nos permitió identificar qué señal debía llegar a cada pin. [22](#fuente-22)
+
+Después necesitábamos transformar una cifra en las señales que dibujan esa cifra. Reutilizamos la idea de las ROM empleada para los símbolos del juego y creamos **digito_7_segmentos**. Recibe una cifra de 4 bits y consulta una ROM que devuelve el patrón de 8 bits correspondiente. Por ejemplo, para el número 1 devuelve 06, que enciende las dos barras de la derecha. Usamos tres instancias de este subcircuito. [23](#fuente-23)
+
+<p align="center">
+  <img src="../img/digito_7_segmentos_v1.png" alt="ROM que convierte una cifra en el patrón de los siete segmentos y el punto decimal" width="600"><br>
+  <em>Figura 24. Subcircuito digito_7_segmentos y sus patrones guardados en ROM.</em>
+</p>
+
+Quedaba obtener las tres cifras a partir del saldo. Usamos dos Divider por 10. El resto de la primera da las unidades, dividimos su cociente nuevamente y obtenemos las decenas como resto y las centenas como cociente. [24](#fuente-24)
+
+Cada cifra sale en 8 bits, así que un Bit Selector toma sus cuatro bits inferiores antes de enviarla a **digito_7_segmentos**. [25](#fuente-25)
+
+<p align="center">
+  <img src="../img/visualizador_creditos_v1.png" alt="Visualizador de créditos con dos divisores y tres displays que muestran 255" width="700"><br>
+  <em>Figura 25. Visualizador de créditos con el saldo 255 en decimal y binario.</em>
 </p>
 
 ## Fuentes consultadas
@@ -429,3 +452,17 @@ Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en
 17. <a id="fuente-17"></a>[Logisim. Edición de la apariencia de subcircuitos.](https://www.cburch.com/logisim/docs/2.7/en/html/guide/subcirc/appear.html)
 
 18. <a id="fuente-18"></a>[Logisim. Tunnel (túnel).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/wiring/tunnel.html)
+
+19. <a id="fuente-19"></a>[Logisim. Register (registro).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/mem/register.html)
+
+20. <a id="fuente-20"></a>[Logisim. Adder (sumador).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/arith/adder.html)
+
+21. <a id="fuente-21"></a>[Logisim. Subtractor (restador).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/arith/subtractor.html)
+
+22. <a id="fuente-22"></a>[Logisim. 7-Segment Display.](https://www.cburch.com/logisim/docs/2.7/en/html/libs/io/7seg.html)
+
+23. <a id="fuente-23"></a>[Logisim. ROM.](https://www.cburch.com/logisim/docs/2.7/en/html/libs/mem/rom.html)
+
+24. <a id="fuente-24"></a>[Logisim. Divider (divisor).](https://www.cburch.com/logisim/docs/2.7/en/html/libs/arith/divider.html)
+
+25. <a id="fuente-25"></a>[Logisim. Bit Selector.](https://www.cburch.com/logisim/docs/2.7/en/html/libs/plexers/selector.html)
