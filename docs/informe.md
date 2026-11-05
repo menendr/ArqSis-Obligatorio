@@ -358,9 +358,9 @@ Podemos contrar con 3 entradas:
 |---|---|
 | Jugar | Indica que se aceptó una tirada y debe descontarse un crédito. |
 | Premio | Bus de 8 bits con la cantidad de créditos que corresponde sumar. |
-| Cobrar | Indica el tick en el que debe guardarse la suma del premio. |
+| EnVictoria | Indica que debe guardarse la suma del premio. |
 
-Jugar y Cobrar son conjuntas: deben activarse una sola vez por operación. Si Cobrar permanece en 1 durante varios ticks, el premio se suma repetidamente.
+Jugar debe activarse una vez por tirada aceptada. En cambio, EnVictoria puede permanecer en 1 durante varios ticks: un biestable guarda su valor anterior y permite cobrar solo en el primer tick de Victoria. Al salir de ese estado, queda listo para detectar la próxima victoria.
 
 Por otro lado podemos hacer uso de 2 salidas para el circuito, **Hay creditos** que nos habilita a hacer una nueva jugada y **Saldo Actual** de 8 bits a modo de visor para que el usuario puesa saber cuantos creditos restantes tiene.
 
@@ -388,7 +388,7 @@ Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en
 ### Resultado final del circuito controlador_creditos
 
 <p align="center">
-  <img src="../img/controlador_creditos_v1.png" alt="Logica final para controlador_creditos" width="400"><br>
+  <img src="../img/controlador_creditos_v2.png" alt="Logica final para controlador_creditos" width="400"><br>
   <em>Figura 23. Logica final controlador_creditos.</em>
 </p>
 
