@@ -415,6 +415,28 @@ Cada cifra sale en 8 bits, así que un Bit Selector toma sus cuatro bits inferio
   <em>Figura 25. Visualizador de créditos con el saldo 255 en decimal y binario.</em>
 </p>
 
+## Evaluador de premios
+Una vez que tenemos los resultados de los tres displays, necesitamos saber si forman una combinación ganadora y cuántos créditos corresponde entregar. Para eso creamos **evaluador_premios**. 
+Recibe tres entradas (resultados) de 2 bits y tiene dos salidas:
+- Premio con la cantidad de créditos ganados
+- HayPremio que indica si hubo una victoria.
+
+Primero comparamos, usando Comparator, el resultado 1 con el 2 y el resultado 2 con el 3. Unimos ambas comparaciones con un AND.
+
+Luego usamos un multiplexor para elegir el premio según el símbolo.
+- tres créditos por tres sietes (00).
+- dos por tres campanas (01).
+- uno por tres rayos (10). 
+- cero si la entada es 11 (Caso no usado pero lo queriamos contemplar por seguroda).
+
+Un segundo multiplexor deja pasar el premio únicamente cuando los tres resultados coinciden, si no, entrega cero. 
+Finalmente, comparamos ese valor con cero para generar HayPremio.
+
+<p align="center">
+  <img src="../img/evaluador_premio_v1.png" alt="Circuito que compara los tres resultados y calcula el premio" width="700"><br>
+  <em>Figura 26. Evaluador de premios con tres sietes: Premio vale 3 y HayPremio vale 1.</em>
+</p>
+
 ## Fuentes consultadas
 
 1. <a id="fuente-1"></a>[Logisim. LED Matrix.](https://baillifard.com/logisim/en/html/libs/io/dotmat.html)
