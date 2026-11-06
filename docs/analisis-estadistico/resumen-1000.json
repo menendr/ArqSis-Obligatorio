@@ -1,0 +1,43 @@
+{
+  "tiradas": 1000,
+  "semillas_resultados_1_2_3": [
+    1,
+    34,
+    91
+  ],
+  "circuito_sha256": "ff2c40ce267cb82b6a83ee378da246492ebea3c89f99064173c14a646ae01b95",
+  "csv_sha256": "073081facf52f4b8c0f5427e7e8d32a5753712780bc28a41053b49ba8fc4ec12",
+  "victorias": 111,
+  "derrotas": 889,
+  "frecuencia_victoria": 0.111,
+  "premios_por_valor": {
+    "0": 889,
+    "1": 35,
+    "2": 38,
+    "3": 38
+  },
+  "simbolos_por_display": [
+    {
+      "0": 324,
+      "1": 322,
+      "2": 354
+    },
+    {
+      "0": 347,
+      "1": 335,
+      "2": 318
+    },
+    {
+      "0": 306,
+      "1": 353,
+      "2": 341
+    }
+  ],
+  "combinaciones_observadas": 27,
+  "creditos_iniciales": 10,
+  "premios_totales": 225,
+  "primera_tirada_sin_creditos": 20,
+  "saldo_teorico_final_sin_bloqueo": -765,
+  "alcance": "Generador y evaluador reales aislados. Saldo matemático sin bloqueo en cero ni límite de 8 bits.",
+  "referencia_teorica": "Tres símbolos equiprobables e independientes; no es una prueba de independencia de las semillas."
+}
