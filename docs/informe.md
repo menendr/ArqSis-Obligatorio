@@ -568,6 +568,45 @@ Se descontaron 1000 créditos y se entregaron 225 en premios, una pérdida media
   <em>Figura 31. Distribución de victorias y símbolos en 1000 resultados.</em>
 </p>
 
+## Funcionalidad Patricio Nuñez 398434
+Como funcionalidad extra decidí agregar un display que muestre cuántos créditos ganó el jugador en cada tirada. Para implementarlo, busqué reutilizar los circuitos que ya teníamos.
+
+En main contamos con la señal Premio, un cable de 8 bits que lleva el valor desde **evaluador_premios** hasta **controlador_creditos**, donde se suma al saldo. Esa señal ya se usaba para pagar el premio, pero todavía no se mostraba al jugador.
+
+En una primera implementación reutilicé la lógica de **visualizador_creditos**, que separa un número binario en unidades, decenas y centenas. Como los premios posibles son 0, 1, 2 y 3, solo necesitaba la salida de unidades para mostrar el valor en un display.
+
+<p align="center">
+  <img src="../img/visualizador_premio_main_v1.png" alt="Primera conexión de la señal Premio al display de premio" width="500"><br>
+  <em>Figura 32. Primera implementación del visualizador de premio en main.</em>
+</p>
+
+<p align="center">
+  <img src="../img/visualizador_has_ganado_main_v1.png" alt="Circuito principal con el display Has ganado y el saldo de créditos" width="700"><br>
+  <em>Figura 33. Premio mostrado junto a los displays del juego y el saldo de créditos.</em>
+</p>
+
+El concepto funcionaba, pero habia un problema, el premio se elige antes de que termine la animación. Por lo tanto, el jugador podía ver cuánto iba a ganar antes de conocer el resultado de los tres displays. Eso le quitaba intriga a la jugada.
+
+Para resolverlo creé un nuevo circuito, **visualizador_premio**, con dos entradas, Premio y Mostrar, y una salida de 8 bits con el patrón que se envía al display. Mostrar se conecta a Animacion Terminada, de modo que el premio aparece recién cuando termina la jugada.
+
+Dentro del circuito usé un Random conectado al reloj para generar un nuevo valor de 8 bits en cada tick. Un multiplexor elige qué enviar a la salida: mientras Mostrar = 0, muestra el patrón aleatorio; cuando Mostrar = 1, muestra el premio real.
+
+Así, durante la animación los segmentos del display se encienden de forma cambiante y, al terminar, aparece el valor ganado. Esto agrega un efecto visual que mantiene la intriga hasta el final de la tirada.
+
+<p align="center">
+  <img src="../img/visualizador_premio_v1.png" alt="Subcircuito visualizador de premio con Random y multiplexor" width="600"><br>
+  <em>Figura 34. Visualizador de premio: patrón aleatorio durante la animación y premio al terminar.</em>
+</p>
+
+<p align="center">
+  <img src="../img/visualizador_premio_main_v2.png" alt="Integración del visualizador de premio en el circuito principal" width="600"><br>
+  <em>Figura 35. Visualizador de premio conectado a Premio y Animación terminada en main.</em>
+</p>
+
+### Uso de inteligencia artificial
+
+Utilicé ChatGPT para explorar ideas de funcionalidades extra pero decidi ir por una idea propia, adicionalmente revisar la redacción de esta sección y generar la aliniacion de imagenes .
+
 ## Anexo. Hoja de especificaciones del joystick
 
 ### Descripción del componente
