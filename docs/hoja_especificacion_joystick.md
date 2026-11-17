@@ -1,4 +1,4 @@
-# Hoja de especificaciones  Joystick de Logisim
+# Hoja de especificaciones: Joystick de Logisim
 
 ## Descripción del componente
 
@@ -30,10 +30,10 @@ Ambas salidas representan valores enteros sin signo, cuyo tamaño depende de la 
 ## Configuración
 
 El joystick permite modificar la cantidad de bits utilizados para representar sus coordenadas mediante la propiedad *Bit Width*.
-Esta configuración determina el rango de valores disponibles en cada salida. Por defecto el componente se inicializa en 4 bits, pero para nuestro uso decidimos estudiar el comportamiendo del joystick con 2 bits
+Esta configuración determina el rango de valores disponibles en cada salida. Por defecto el componente se inicializa en 4 bits, pero para nuestro uso decidimos estudiar el comportamiento del joystick con 2 bits.
 Con esta configuración, los valores de salida se encuentran entre `01` y `11`, siendo `00` un valor que el componente no genera.
 
-## 5. Valores de salida esperados
+## Valores de salida esperados
 
 Con la configuración de 2 bits, las salidas presentan los siguientes valores según la posición de la palanca:
 
@@ -49,7 +49,7 @@ Con la configuración de 2 bits, las salidas presentan los siguientes valores se
 | Abajo - Izquierda  | `01`     | `11`     |
 | Abajo - Derecha    | `11`     | `11`     |
 
-La tabla representa las posiciones centrales y extremas de cada eje, sin considerar movimientos diagonales.
+La tabla incluye la posición de reposo, los movimientos en cada eje y las combinaciones diagonales.
 
 ## Estado de reposo
 
