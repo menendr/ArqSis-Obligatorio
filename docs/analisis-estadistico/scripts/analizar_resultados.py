@@ -52,8 +52,11 @@ summary = {
 # Composición estática en Altair/Vega-Lite, exportable sin navegador.
 ink = "#16321A"
 muted = "#526655"
-logisim_green = "#00FF00"
-background = "#FAFCF9"
+# Verdes con mayor contraste sobre blanco, tambien al imprimir.
+bar_green = "#087F3D"
+secondary_green = "#7E9A84"
+heatmap_greens = ["#C4DCC9", "#438C57"]
+background = "#FFFFFF"
 def percent(value):
     return f"{value:.1f}".replace(".", ",") + " %"
 
@@ -63,7 +66,7 @@ outcomes = [
 ]
 strip = alt.Chart(alt.Data(values=outcomes)).mark_bar(size=24, cornerRadius=2).encode(
     x=alt.X("cantidad:Q", stack="zero", axis=None, scale=alt.Scale(domain=[0, n])),
-    color=alt.Color("tipo:N", scale=alt.Scale(domain=["Victoria", "Sin premio"], range=[logisim_green, "#E1E8DF"]), legend=None),
+    color=alt.Color("tipo:N", scale=alt.Scale(domain=["Victoria", "Sin premio"], range=[bar_green, secondary_green]), legend=None),
     order=alt.Order("orden:Q", sort="ascending")
 ).properties(width=860, height=30, title=alt.TitleParams(
     text=f"{victories} victorias · {percent(100 * victories / n)}",
@@ -80,10 +83,10 @@ base = alt.Chart(alt.Data(values=win_data)).encode(
     x=alt.X("cantidad:Q", scale=alt.Scale(domain=[0, n*.055]),
             axis=alt.Axis(title="Cantidad de tiradas", values=[0, n*.01, n*.02, n*.03, n*.04, n*.05], format=".0f", grid=True))
 )
-bars = base.mark_bar(color=logisim_green, size=28, cornerRadiusEnd=3)
+bars = base.mark_bar(color=bar_green, size=28, cornerRadiusEnd=3)
 labels = base.mark_text(align="left", dx=8, color=ink, fontSize=13).encode(text="etiqueta:N")
 reference = alt.Chart(alt.Data(values=[{"cantidad": n/27}])).mark_rule(
-    color="#47734B", strokeDash=[4,4], strokeWidth=1.5
+    color="#0D2415", strokeDash=[4,4], strokeWidth=1.5
 ).encode(x="cantidad:Q")
 wins = (bars + reference + labels).properties(width=370, height=210,
     title=alt.TitleParams(text="Cómo se repartieron las victorias",
@@ -104,7 +107,7 @@ heat_base = alt.Chart(alt.Data(values=heat_values)).encode(
             axis=alt.Axis(title=None, labelPadding=10))
 )
 tiles = heat_base.mark_rect(stroke=background, strokeWidth=6, cornerRadius=7).encode(
-    color=alt.Color("porcentaje:Q", scale=alt.Scale(domain=[25,40], range=["#F0FFED", "#8FFF80"]), legend=None))
+    color=alt.Color("porcentaje:Q", scale=alt.Scale(domain=[25,40], range=heatmap_greens), legend=None))
 counts_text = heat_base.mark_text(color=ink, fontSize=21, fontWeight="bold", dy=-6).encode(text="cantidad:Q")
 percent_text = heat_base.mark_text(color="#365438", fontSize=11, dy=16).encode(text="porcentaje_texto:N")
 heat = (tiles + counts_text + percent_text).properties(width=340, height=210,
