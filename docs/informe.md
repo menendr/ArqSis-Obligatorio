@@ -9,7 +9,7 @@
 
 En este proyecto diseñamos e implementamos una máquina tragamonedas digital en Logisim con los conceptos que trabajamos en clase.
 
-La máquina tiene tres displays para mostrar los símbolos del juego: un siete, una campana y un rayo. Al bajar la palanca empieza una jugada, se consume un crédito y las pantallas muestran una animación hasta detenerse de forma progresiva. Si los tres símbolos coinciden, se entrega el premio correspondiente y las pantallas parpadean para señalar la victoria. El saldo de créditos se muestra en decimal y en binario.
+Los símbolos del juego se ven en los tres displays. Al bajar la palanca arranca una jugada, se descuenta un crédito y las pantallas empiezan a girar, y van frenando de a una hasta quedar las tres quietas. Si los tres símbolos coinciden, se entrega el premio correspondiente y las pantallas parpadean para señalar la victoria. El saldo de créditos se muestra en decimal y en binario.
 
 En el informe contamos cómo fuimos armando los módulos, desde las primeras pruebas hasta conectarlos entre sí.
 
@@ -38,7 +38,7 @@ Para ver cómo guardar los patrones y elegir cuál mostrar, consultamos con Chat
 
 Una **ROM** (*Read-Only Memory*) almacena valores que se consultan mediante una dirección. La usamos para guardar los patrones de los símbolos. [3](#fuente-3)
 
-Configuramos cada ROM con **2 bits de dirección** y **7 bits de datos**. Con 2 bits tenemos cuatro posiciones (`00`, `01`, `10` y `11`), justo la cantidad que necesitamos para los tres símbolos y la pantalla apagada. En cada posición guardamos el patrón de una columna. Cada uno de los 7 bits de datos indica si el LED de una fila tiene que estar prendido (`1`) o apagado (`0`).
+Configuramos cada ROM con **2 bits de dirección** y **7 bits de datos**. Con 2 bits tenemos cuatro posiciones (`00`, `01`, `10` y `11`): los tres símbolos y la pantalla apagada. En cada posición guardamos el patrón de una columna. Cada uno de los 7 bits de datos indica si el LED de una fila tiene que estar prendido (`1`) o apagado (`0`).
 
 Repartimos las direcciones así:
 
@@ -200,7 +200,7 @@ El Separador permite dividir un bus en sus bits o reunirlos [16](#fuente-16), y 
   <em>Figura 12. Circuito controlador de palanca.</em>
 </p>
 
-Detectar que la palanca está abajo no equivale a aceptar una jugada nueva, porque la señal permanece en 1 mientras la sostenemos. En los siguientes pasos agregamos la captura de una nueva bajada y la habilitación de la jugada en Espera y con créditos. Esa lógica controla el LED **Influye** y la solicitud de inicio de la jugada.
+Que la palanca esté abajo no significa que la jugada ya esté aceptada: mientras la sostenemos, la señal sigue en 1. Más adelante agregamos que el circuito se quede con cada bajada nueva y que la jugada solo se habilite en Espera y con créditos. Esa lógica controla el LED **Influye** y la solicitud de inicio de la jugada.
 
 <p align="center">
   <img src="../img/palanca.png" alt="Joystick conectado al subcircuito controlador_palanca en el circuito principal" width="300"><br>
@@ -227,7 +227,7 @@ En la versión actual, Espera se representa con `00` (`Qa = 0` y `Qb = 0`, los b
 habilitar_palanca = NOT Qa AND NOT Qb AND hay_creditos
 ```
 
-La decisión de permitir jugar queda en el circuito principal. El controlador detecta y guarda la bajada. Para reconocer Espera usamos NOT, que invierte cada bit [17](#fuente-17), y una compuerta AND [10](#fuente-10).
+El controlador solo detecta la bajada y la guarda. La decisión de permitir jugar queda en el circuito principal. Para reconocer Espera usamos NOT, que invierte cada bit [17](#fuente-17), y una compuerta AND [10](#fuente-10).
 
 Separamos las señales para que cada indicador cumpla una función distinta:
 
@@ -332,7 +332,7 @@ Probamos las transiciones de la máquina con entradas manuales y funcionaron seg
   <em>Figura 18. Integración de la máquina de estados con la palanca y los displays.</em>
 </p>
 
-En la primera integración probamos las condiciones de transición con entradas manuales. Después conectamos `hc` al controlador de créditos, `hp` al evaluador de premios, `at` a la detención del tercer display y `vt` al controlador de Victoria. La señal `Habilitar AND Salida`, que llamamos `Jugada aceptada`, reinicia el tiempo de animación, solicita los resultados y habilita el descuento del crédito. Así una bajada durante Juego o Victoria no inicia otra tirada. Los ajustes finales de animación y generación se describen a continuación.
+En la primera integración probamos las condiciones de transición con entradas manuales. Después conectamos `hc` al controlador de créditos, `hp` al evaluador de premios, `at` a la detención del tercer display y `vt` al controlador de Victoria. La señal `Habilitar AND Salida`, que llamamos `Jugada aceptada`, reinicia el tiempo de animación, solicita los resultados y habilita el descuento del crédito. Así una bajada durante Juego o Victoria no inicia otra tirada. La animación y el generador todavía necesitaron ajustes que describimos luego.
 
 ### Manejo de créditos
 
@@ -405,7 +405,7 @@ La letra pide mostrar el saldo al mismo tiempo en decimal, con displays de siete
 
 Creamos **visualizador_creditos** para recibir el saldo y entregar cuatro salidas: una de 8 bits para los LEDs y otras tres para las unidades, decenas y centenas. Conectamos la salida binaria a ocho LEDs en el circuito principal, uno por cada bit del saldo.
 
-Primero estudiamos el display. Tiene un pin por cada segmento y otro para el punto decimal. Los cuatro pines superiores son g, f, a, b; los inferiores son e, d, c, punto, de izquierda a derecha. Esto nos permitió identificar qué señal debía llegar a cada pin. [24](#fuente-24)
+Primero estudiamos el display. Tiene un pin por cada segmento y otro para el punto decimal. Los cuatro pines superiores son g, f, a, b; los inferiores son e, d, c, punto, de izquierda a derecha. Así pudimos identificar qué señal debía llegar a cada pin. [24](#fuente-24)
 
 Después necesitábamos transformar una cifra en las señales que dibujan esa cifra. Reutilizamos la idea de las ROM empleada para los símbolos del juego y creamos **digito_7_segmentos**. Recibe una cifra de 4 bits y consulta una ROM que devuelve el patrón de 8 bits correspondiente. Por ejemplo, para el número 1 devuelve 06, que enciende las dos barras de la derecha. Usamos tres instancias de este subcircuito. [25](#fuente-25)
 
@@ -416,7 +416,7 @@ Después necesitábamos transformar una cifra en las señales que dibujan esa ci
 
 Para separar las cifras usamos **Divider**, que divide un número entre otro y entrega el cociente entero y el resto [26](#fuente-26).
 
-Quedaba obtener las tres cifras a partir del saldo. Usamos dos Divider por 10. El resto de la primera da las unidades, dividimos su cociente nuevamente y obtenemos las decenas como resto y las centenas como cociente. [26](#fuente-26)
+Todavía nos faltaba obtener las tres cifras a partir del saldo. Usamos dos Divider por 10. El resto de la primera da las unidades, dividimos su cociente nuevamente y obtenemos las decenas como resto y las centenas como cociente. [26](#fuente-26)
 
 Un **Bit Selector** extrae de un bus un grupo de bits elegido por su entrada de selección [27](#fuente-27).
 
@@ -429,13 +429,13 @@ Cada cifra sale en 8 bits, así que un Bit Selector toma sus cuatro bits inferio
 
 ### Evaluador de premios
 
-Una vez que tenemos los resultados de los tres displays, necesitamos saber si forman una combinación ganadora y cuántos créditos corresponde entregar. Para eso creamos **evaluador_premios**.
+Una vez que tenemos los resultados de los tres displays, necesitamos saber si forman una combinación ganadora y cuántos créditos corresponde entregar. Todo eso lo juntamos en un subcircuito, **evaluador_premios**.
 Recibe tres entradas (resultados) de 2 bits y tiene dos salidas:
 
 - `Premio`, con la cantidad de créditos ganados (8 bits).
 - `Hay Premio`, que indica si la combinación tiene premio.
 
-Primero comparamos, usando Comparator, el resultado 1 con el 2 y el resultado 2 con el 3. Unimos ambas comparaciones con un AND.
+Primero comparamos, usando Comparator, el resultado 1 con el 2 y el resultado 2 con el 3. Unimos las dos comparaciones con un AND.
 
 Luego usamos un multiplexor para elegir el premio según el símbolo.
 
@@ -525,7 +525,7 @@ Detener3 = NOT EnJuego OR tiempo >= 7
 
 Con ese cambio, las pantallas quedan detenidas en Espera y Victoria, y durante Juego se detienen de forma progresiva. Probamos el arranque: las tres señales quedan en 1 y, como los registros de resultados empiezan en `00`, se ven tres sietes quietos. Durante Victoria, la entrada `Apagar` hace parpadear las pantallas y el resultado sigue guardado.
 
-Al aceptar una tirada guardamos los tres símbolos del resultado. Mientras tanto, las pantallas recorren la secuencia de animación y, al detenerse, muestran el símbolo que ya estaba guardado. Cuando termina la animación, la máquina decide si vuelve a Espera o entra en Victoria. El premio se cobra al entrar en ese estado.
+Al aceptar una tirada guardamos los tres símbolos del resultado. Mientras tanto, las pantallas recorren la secuencia de animación y, al detenerse, muestran el símbolo que ya estaba guardado. Cuando termina la animación la máquina decide si entra en Victoria o vuelve a Espera. El premio se cobra al entrar en ese estado.
 
 <p align="center">
   <img src="../img/integracion-generador-victoria-displays.png" alt="Circuito principal con el generador agrupado y el control de animación y Victoria" width="600"><br>
@@ -598,7 +598,7 @@ La idea surgió del estudio estadístico que pide la letra. Después de analizar
 
 Al principio quería dos grupos de barras: uno con las últimas diez tiradas y otro con todas las tiradas. Empecé usando detectores y puertas para contar cuántas veces aparecía cada símbolo en una jugada. Cuando intenté mantener las dos estadísticas, el circuito se volvió más complicado de lo que esperaba. Para las últimas diez había que guardar un historial, sumar la jugada nueva y restar la que salía de la ventana. Preferí quedarme con el acumulado desde el inicio de la simulación.
 
-Para hacerlo armé **estadisticas_resultados**, que cuenta y acumula las apariciones, y **barra_estadistica**, que transforma cada cantidad acumulada en las filas encendidas de una matriz LED. Reutilicé el circuito de barra tres veces, una por símbolo.
+Para hacerlo armé **estadisticas_resultados**, que cuenta y acumula las apariciones, y **barra_estadistica**, que transforma cada cantidad acumulada en las filas encendidas de una matriz LED. Diseñé la barra una sola vez y la reutilice para cada símbolo
 
 En **estadisticas_resultados** dejé las siguientes entradas y salidas:
 
@@ -610,7 +610,7 @@ En **estadisticas_resultados** dejé las siguientes entradas y salidas:
 | `Animacion Terminada` | Entrada | 1 bit | Indica que se detuvo el tercer display. |
 | `Siete`, `Campana`, `Rayo` | Salida | 15 bits cada una | Patrón de filas encendidas para la barra de cada símbolo. |
 
-Reemplacé los detectores y las puertas de conteo por una **ROM** con una tabla fija [25](#fuente-25). La configuré con **6 bits de dirección y 6 bits de datos**. Un Separador junta los tres resultados de 2 bits para formar la dirección. Otro divide el dato de salida en tres cantidades de 2 bits, que permiten contar de 0 a 3 apariciones por símbolo.
+Contar con detectores y puertas era demasiado circuito para una operación de tres casos. Lo resolví con una **ROM** de 6 bits de dirección y 6 de datos [25](#fuente-25): un Separador junta los tres resultados en la dirección, y otro parte el dato de salida en tres cantidades de 2 bits. Cada cantidad cuenta de 0 a 3 apariciones, que es todo lo que puede aparecer de un símbolo por tirada.
 
 Mantuve la codificación `00 = siete`, `01 = campana` y `10 = rayo`.
 
@@ -699,7 +699,7 @@ Cuando reinicio la simulación, los acumuladores y `Jugadas` vuelven a cero y la
 
 ## Uso de inteligencia artificial
 
-Utilizamos ChatGPT, Codex y Claude como herramientas de IA para consultar el funcionamiento y la configuración de los componentes de Logisim, comparar alternativas de diseño y simplificar los circuitos. También las usamos para revisar implementaciones de los subcircuitos, conexiones y expresiones lógicas. Nos apoyamos en estas herramientas para preparar y ejecutar pruebas automáticas con el motor de Logisim, tanto sobre módulos aislados como sobre el circuito integrado, y para analizar los datos del estudio estadístico. Además, las usamos para redactar y corregir el informe, organizar el contenido y mejorar la claridad del texto.
+Utilizamos ChatGPT, Codex y Claude como herramientas de IA para consultar el funcionamiento y la configuración de los componentes de Logisim, comparar alternativas de diseño y simplificar los circuitos. También las usamos para revisar implementaciones de los subcircuitos, conexiones y expresiones lógicas. Nos apoyamos en estas herramientas para preparar y ejecutar pruebas automáticas con el motor de Logisim, tanto sobre módulos aislados como sobre el circuito integrado, y para analizar los datos del estudio estadístico. En el informe las usamos para ordenar secciones, pasar en limpio y detectar párrafos que no se entendían.
 
 
 ## Fuentes consultadas
