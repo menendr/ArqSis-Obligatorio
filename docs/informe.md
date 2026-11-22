@@ -49,7 +49,7 @@ Repartimos las direcciones así:
 | `10` | Rayo |
 | `11` | Pantalla apagada |
 
-Para cargar los símbolos, primero elegimos qué LEDs debían prenderse en cada columna y escribimos ese patrón en 7 bits. Como el editor de las ROM muestra los valores en hexadecimal, convertimos los patrones antes de cargarlos. Cambia la forma de escribirlo, pero el valor y los 7 bits que recibe la columna siguen siendo los mismos. [4](#fuente-4)
+Para cargar los símbolos, primero elegimos qué **LEDs** debían prenderse en cada columna y escribimos ese patrón en 7 bits. Como el editor de las **ROM** muestra los valores en hexadecimal, convertimos los patrones antes de cargarlos. Cambia la forma de escribirlo, pero el valor y los 7 bits que recibe la columna siguen siendo los mismos. [4](#fuente-4)
 
 Usamos **cinco ROM**, una por columna, porque cada columna necesita su propio patrón. Todas reciben la misma dirección de 2 bits, pero cada una guarda los valores de su columna.
 
@@ -82,7 +82,7 @@ El circuito ya tenía bastantes componentes y cables, y necesitábamos repetirlo
 
 Un **subcircuito** agrupa componentes y conexiones para reutilizarlos como un único bloque, con una interfaz definida por sus pines. [5](#fuente-5)
 
-Armamos entonces `controlador_display`, que recibe el número del símbolo y entrega los valores para las cinco columnas del display.
+Armamos entonces **controlador_display**, que recibe el número del símbolo y entrega los valores para las cinco columnas del display.
 
 En esta primera versión, el circuito tenía:
 
@@ -106,18 +106,18 @@ Así pudimos usar el mismo diseño en las tres pantallas y dejar más ordenado e
 
 ### Animación y detención de los displays
 
-Cuando logramos mostrar los símbolos, seguimos con la animación. Consultamos a ChatGPT para elegir los componentes y configurarlos. Usamos un **contador**, que guarda un valor y puede incrementarlo en cada flanco activo del reloj. El **reloj** alterna periódicamente su salida para marcar el avance del circuito. Un flanco es el cambio de 0 a 1 o de 1 a 0. El flanco activo es el que dispara la actualización del componente. [6](#fuente-6), [7](#fuente-7) Conectamos un contador de 2 bits a `controlador_display`, con un máximo de 2 y vuelta a cero al superarlo. Obtuvimos la secuencia `00 → 01 → 10 → 00`: siete, campana y rayo, sin pasar por `11`, que apaga la pantalla.
+Cuando logramos mostrar los símbolos, seguimos con la animación. Consultamos a ChatGPT para elegir los componentes y configurarlos. Usamos un **contador**, que guarda un valor y puede incrementarlo en cada flanco activo del reloj. El **reloj** alterna periódicamente su salida para marcar el avance del circuito. Un flanco es el cambio de 0 a 1 o de 1 a 0. El flanco activo es el que dispara la actualización del componente. [6](#fuente-6), [7](#fuente-7) Conectamos un contador de 2 bits a **controlador_display**, con un máximo de 2 y vuelta a cero al superarlo. Obtuvimos la secuencia `00 → 01 → 10 → 00`: siete, campana y rayo, sin pasar por `11`, que apaga la pantalla.
 
 Al principio quisimos que las pantallas mostraran símbolos distintos durante la animación. Después preferimos simplificar: los tres displays recorren la misma secuencia al mismo tiempo. Cada uno tiene su contador, inicialmente conectado al reloj común.
 
-Para elegir entre animación y resultado, ampliamos `controlador_display` con dos entradas de 2 bits, `simbolo_animacion` y `resultado`, y una entrada de control de 1 bit, `detener`. Un **multiplexor** copia a su salida una de sus entradas de datos según una señal de selección. [8](#fuente-8) Su salida alimenta la dirección de las cinco ROM. Con la señal `detener` en 0 selecciona el símbolo del contador de animación. Con `detener` en 1 selecciona el resultado que debe mostrar esa pantalla. En esa primera prueba elegimos los resultados a mano con pines de 2 bits. Los contadores siguen avanzando, pero cuando activamos `detener` la pantalla muestra el resultado fijo.
+Para elegir entre animación y resultado, ampliamos **controlador_display** con dos entradas de 2 bits, `simbolo_animacion` y `resultado`, y una entrada de control de 1 bit, `detener`. Un **multiplexor** copia a su salida una de sus entradas de datos según una señal de selección. [8](#fuente-8) Su salida alimenta la dirección de las cinco ROM. Con la señal `detener` en 0 selecciona el símbolo del contador de animación. Con `detener` en 1 selecciona el resultado que debe mostrar esa pantalla. En esa primera prueba elegimos los resultados a mano con pines de 2 bits. Los contadores siguen avanzando, pero cuando activamos `detener` la pantalla muestra el resultado fijo.
 
 <p align="center">
   <img src="../img/controlador-display-multiplexor.png" alt="Controlador de display con multiplexor y cinco ROM" width="600"><br>
   <em>Figura 8. Selección entre animación y resultado dentro de controlador_display.</em>
 </p>
 
-Para que las pantallas se fueran deteniendo de a una, agregamos un contador de tiempo de 3 bits al mismo reloj. Un **comparador** indica si un valor es mayor, igual o menor que otro; una compuerta **OR** entrega 1 si al menos una de sus entradas vale 1. [9](#fuente-9), [10](#fuente-10) Para detener cada pantalla, usamos un comparador y una compuerta OR. Combinamos las salidas “mayor que” e “igual a” para que la señal de detención se active cuando el contador llegue al valor elegido y siga activa después:
+Para que las pantallas se fueran deteniendo de a una, agregamos un contador de tiempo de 3 bits al mismo reloj. Un **Comparator** indica si un valor es mayor, igual o menor que otro; una compuerta **OR** entrega 1 si al menos una de sus entradas vale 1. [9](#fuente-9), [10](#fuente-10) Para detener cada pantalla, usamos un comparador y una compuerta OR. Combinamos las salidas “mayor que” e “igual a” para que la señal de detención se active cuando el contador llegue al valor elegido y siga activa después:
 
 | Valor del contador de tiempo | Display 1 | Display 2 | Display 3 |
 |---|---|---|---|
@@ -128,7 +128,7 @@ Para que las pantallas se fueran deteniendo de a una, agregamos un contador de t
 
 En la prueba nos pasó que el comparador marcaba 1, 2 y 3 como mayores que `101`. Revisamos la configuración y vimos que estaba comparando con signo, en complemento A2: en 3 bits, `101` es −3. Lo cambiamos a **Unsigned / Sin signo** y empezó a comparar como esperábamos. Dejamos los tres comparadores con esa configuración.
 
-Dejamos el contador de tiempo fijo en 7 al llegar al máximo, para que la animación no vuelva a empezar sola. Primero usamos un botón para reiniciarlo y repetir las pruebas. Después juntamos el contador, los comparadores y las compuertas OR en `controlador_animacion`, con entradas de reloj y reinicio y una salida de detención para cada display. Reemplazamos los pines de comparación por componentes **Constante**, que entregan permanentemente el valor configurado en sus propiedades. Los configuramos con 3 bits y valores 5, 6 y 7, conservando los umbrales al reiniciar la simulación. [11](#fuente-11)
+Dejamos el contador de tiempo fijo en 7 al llegar al máximo, para que la animación no vuelva a empezar sola. Primero usamos un botón para reiniciarlo y repetir las pruebas. Después juntamos el contador, los comparadores y las compuertas OR en **controlador_animacion**, con entradas de reloj y reinicio y una salida de detención para cada display. Reemplazamos los pines de comparación por componentes **Constante**, que entregan permanentemente el valor configurado en sus propiedades. Los configuramos con 3 bits y valores 5, 6 y 7, conservando los umbrales al reiniciar la simulación. [11](#fuente-11)
 
 <p align="center">
   <img src="../img/controlador-animacion-detencion.png" alt="Controlador de animación con contador y comparadores" width="500"><br>
@@ -142,7 +142,7 @@ Dejamos el contador de tiempo fijo en 7 al llegar al máximo, para que la animac
 
 Probamos la detención con resultados fijos elegidos a mano. La primera pantalla mostró su resultado al llegar a 5, la segunda al llegar a 6 y la tercera al llegar a 7. Cada una quedó fija mientras las otras seguían animándose. En esa primera prueba, bajar la palanca con las tres detenidas volvía a empezar la animación, pero bajarla durante la jugada también reiniciaba el contador de tiempo. Más adelante conectamos la palanca a la máquina de estados para decidir cuándo aceptar una jugada.
 
-Después ordenamos un poco más el circuito: movimos el contador de símbolos y su reloj dentro de `controlador_display`. La entrada externa `simbolo_animacion` dejó de ser necesaria; cada instancia genera su propia secuencia y, en esa etapa, recibe solamente `resultado` y `detener`. También movimos el reloj de tiempo al interior de `controlador_animacion`. Los relojes tienen la misma configuración y, en Logisim, avanzan con los ticks de la simulación [7](#fuente-7). Con estos cambios quitamos los tres contadores y el reloj de animación del circuito principal. Al iniciar otra jugada reiniciamos el contador de tiempo, pero los contadores de símbolos siguen avanzando: las pantallas retoman la secuencia en el símbolo que corresponda en ese momento. Más adelante incorporamos el generador de resultados y el parpadeo de Victoria, que describimos en las secciones siguientes.
+Después ordenamos un poco más el circuito: movimos el contador de símbolos y su reloj dentro de **controlador_display**. La entrada externa `simbolo_animacion` dejó de ser necesaria; cada instancia genera su propia secuencia y, en esa etapa, recibe solamente `resultado` y `detener`. También movimos el reloj de tiempo al interior de **controlador_animacion**. Los relojes tienen la misma configuración y, en Logisim, avanzan con los ticks de la simulación [7](#fuente-7). Con estos cambios quitamos los tres contadores y el reloj de animación del circuito principal. Al iniciar otra jugada reiniciamos el contador de tiempo, pero los contadores de símbolos siguen avanzando: las pantallas retoman la secuencia en el símbolo que corresponda en ese momento. Más adelante incorporamos el generador de resultados y el parpadeo de Victoria, que describimos en las secciones siguientes.
 
 ### Lectura y control de la palanca
 
@@ -150,7 +150,7 @@ La letra del obligatorio pide iniciar con la investigación de qué es un datash
 
 #### ¿Qué es un datasheet?
 
-Unit Electronics [12](#fuente-12) define datasheet como un documento que recopila información detallada sobre las características, el funcionamiento, el uso y las especificaciones técnicas de un componente electrónico, en este caso aplicado a circuitos y subcircuitos digitales.
+Tras una búsqueda en las principales paginas oficiales, Unit Electronics [12](#fuente-12) define datasheet como un documento que recopila información detallada sobre las características, el funcionamiento, el uso y las especificaciones técnicas de un componente electrónico, en este caso aplicado a circuitos y subcircuitos digitales.
 
 Este tipo de documentación suele ser elaborada por el fabricante del componente o por quien diseña e implementa el circuito.
 
@@ -164,13 +164,13 @@ Generalmente, incluye información como:
 
 #### Lectura del joystick
 
-Para los indicadores usamos el componente **LED**, que recibe una señal de 1 bit. Configurado como activo en alto, se prende con 1 y se apaga con 0 [13](#fuente-13).
+La palanca debe iniciar una jugada únicamente cuando se mueve hacia abajo. Además, el circuito debe distinguir entre detectar ese movimiento y permitir que influya en el juego: durante los estados de Juego y Victoria, mover la palanca no debe iniciar otra jugada. La letra pide mostrar ambas condiciones mediante dos indicadores LEDs.
 
-La palanca debe iniciar una jugada únicamente cuando se mueve hacia abajo. Además, el circuito debe distinguir entre detectar ese movimiento y permitir que influya en el juego: durante los estados de Juego y Victoria, mover la palanca no debe iniciar otra jugada. La letra pide mostrar ambas condiciones mediante dos LEDs.
+Para los indicadores usamos el componente **LED**, que recibe una señal de 1 bit. Configurado como activo en alto, se prende con 1 y se apaga con 0 [13](#fuente-13).
 
 Para estudiar la entrada elegimos el componente **Joystick** de Logisim. Según su documentación [14](#fuente-14), tiene dos salidas: el pin superior tiene la coordenada horizontal X y el inferior, la coordenada vertical Y. Como nos interesa el movimiento hacia abajo, decidimos utilizar solamente Y. La documentación también indica que el valor de reposo corresponde al centro, que arriba vale 1 y que abajo alcanza el valor máximo permitido por el ancho de bits configurado.
 
-Al colocar el joystick observamos que estaba configurado con 4 bits por coordenada. Para esta primera prueba redujimos el ancho a **2 bits**, suficiente para distinguir arriba, centro y abajo. Necesitábamos ver qué valor producía cada posición, por lo que consultamos a Codex cómo observar la salida en Logisim. A partir de esa consulta conectamos una sonda (Probe) al pin Y y seleccionamos la visualización en binario. La sonda muestra el valor de la señal sin modificarla [15](#fuente-15). Esto nos permitió estudiar el componente y escribir la [hoja de especificaciones del joystick](#anexo-hoja-de-especificaciones-del-joystick).
+Al colocar el joystick observamos que estaba configurado con 4 bits por coordenada. Para esta primera prueba redujimos el ancho a **2 bits**, suficiente para distinguir arriba, centro y abajo. Necesitábamos ver qué valor producía cada posición, por lo que consultamos a Codex cómo observar la salida en Logisim. A partir de esa consulta conectamos una sonda **Probe** al pin Y y seleccionamos la visualización en binario. La sonda muestra el valor de la señal sin modificarla [15](#fuente-15). Esto nos permitió estudiar el componente y escribir la [hoja de especificaciones del joystick](#anexo-hoja-de-especificaciones-del-joystick).
 
 | Posición vertical | Salida Y con 2 bits |
 | --- | --- |
@@ -209,7 +209,7 @@ Que la palanca esté abajo no significa que la jugada ya esté aceptada: mientra
 
 #### Implementación del LED Influye
 
-En el primer prototipo agregamos al *controlador_palanca* una entrada para el estado del juego. En ese momento representábamos Espera con `11` y el LED **Influye** indicaba solamente que estábamos en ese estado. Después corregimos esa lógica para que el indicador mostrara una solicitud de tirada habilitada, como pide la letra.
+En el primer prototipo agregamos al **controlador_palanca** una entrada para el estado del juego. En ese momento representábamos Espera con `11` y el LED **Influye** indicaba solamente que estábamos en ese estado. Después corregimos esa lógica para que el indicador mostrara una solicitud de tirada habilitada, como pide la letra.
 
 <p align="center">
   <img src="../img/controlador_palanca_led_influye.png" alt="Primer prototipo del controlador de palanca con habilitación por estado" width="500"><br>
@@ -260,7 +260,7 @@ También personalizamos la apariencia del subcircuito para ordenar sus dos entra
 
 ### Máquina de estados e integración
 
-Para coordinar el juego armamos `maquina_estados`. La idea es guardar en qué etapa estamos y decidir el próximo estado según las entradas. Usamos dos biestables D, A y B: sus salidas `Qa` y `Qb` guardan el estado actual, y sus entradas D reciben los bits del próximo estado. Ambos se actualizan con el mismo flanco de subida del reloj [18](#fuente-18). Si no corresponde cambiar, vuelven a guardar el mismo código.
+Para coordinar el juego armamos **maquina_estados**. La idea es guardar en qué etapa estamos y decidir el próximo estado según las entradas. Usamos dos biestables D, A y B: sus salidas `Qa` y `Qb` guardan el estado actual, y sus entradas D reciben los bits del próximo estado. Ambos se actualizan con el mismo flanco de subida del reloj [18](#fuente-18). Si no corresponde cambiar, vuelven a guardar el mismo código.
 
 | Estado | Código `Qa Qb` |
 |:---|:---:|
@@ -338,16 +338,21 @@ En la primera integración probamos las condiciones de transición con entradas 
 
 Para administrar las monedas del juego creamos el subcircuito **controlador_creditos**. Partimos de cuatro reglas: el juego debe comenzar con un saldo distinto de cero, cada tirada aceptada consume una moneda, una combinación ganadora suma su premio y, cuando el saldo llega a cero, no se puede iniciar otra jugada. Elegimos inicialmente 3 créditos para facilitar las pruebas; después aumentamos el saldo inicial a 10 para probar varias tiradas seguidas.
 
-Representamos el saldo con 8 bits, por lo que puede tomar valores entre 0 y 255. Además de actualizarlo, el subcircuito entrega dos salidas: Saldo Actual, con el valor disponible, y Hay Creditos, que vale 1 cuando el saldo es mayor que cero. Esta última señal se puede usar para habilitar la palanca únicamente cuando sea posible jugar.
+Representamos el saldo con 8 bits, por lo que puede tomar valores entre 0 y 255. Además de actualizarlo, el subcircuito debe entregar dos salidas: Saldo Actual, con el valor disponible, y Hay Creditos, que vale 1 cuando el saldo es mayor que cero. Esta última señal se puede usar para habilitar la palanca únicamente cuando sea posible jugar.
 
 #### Banco de monedas
 
-Para guardar el saldo usamos un **Register** de 8 bits: un registro que conserva el valor y lo actualiza en el flanco activo del reloj. Permite representar de 0 a 255 créditos [21](#fuente-21).
+Para crear el banco de monedas dentro del subcircuito **controlador_creditos** sabíamos  que íbamos a necesitar un **Register** para guardar el saldo de 8 bits. Un registro que conserva el valor y lo actualiza en el flanco activo del reloj. Con 8 bits nos permite representar de 0 a 255 créditos [21](#fuente-21). 
 
-El Register inicia con valor 0 lo cual no nos sirve para nuestro juego, donde en esta primera versión iniciamos en 3 créditos.
-Entonces podemos usar un multiplexor para decidir que al iniciar el programa tengamos el valor 3 hardcodeado, y luego consumiremos el valor desde el Register.
+El Register inicia con un valor de 0, lo cual no nos servía para nuestro juego, ya que necesitábamos que el jugador comenzara con una cantidad determinada de créditos. Además, debíamos poder modificar el valor almacenado para sumar los premios obtenidos o descontar un crédito por cada jugada.
+
+Para coordinar esta lógica, consultamos con Codex cuál sería la mejor manera de implementarla.
+
+Codex nos sugirió utilizar multiplexores para seleccionar entre un valor inicial predefinido y el valor almacenado en el Register. Para nuestras pruebas iniciales, decidimos utilizar 3 créditos como saldo inicial.
+
 En el multiplexor la entrada de control (gris) decide que valor de entrada toma el multiplexor, al iniciar el programa nos interesa que esa entrada sea 0 para que tome el valor hardcodeado de 3 créditos iniciales, luego con el primer tick de reloj, nos interesa que la entrada que el multiplexor toma, sea la entrada conectada al Register.
-Entonces para cumplir la lógica de 0 para iniciar y 1 luego del primer tick, podemos guardar un 1 en un biestable D para que se active con el primer tick y quede el 1 guardado para el resto del programa.
+
+Volvimos a consultar con Codex cómo podíamos implementar este comportamiento. Finalmente, llegamos a la solución de utilizar un biestable D, configurado para almacenar un valor de 1 luego del primer flanco activo del reloj.
 
 <p align="center">
   <img src="../img/banco_de_monedas.png" alt="Registro, multiplexor y biestable utilizados para inicializar el saldo en tres créditos" width="400"><br>
@@ -364,7 +369,9 @@ Podemos contar con 3 entradas:
 | Premio | Bus de 8 bits con la cantidad de créditos que corresponde sumar. |
 | En Victoria | Indica que debe guardarse la suma del premio. |
 
-Jugar debe activarse una vez por tirada aceptada. En cambio, En Victoria puede permanecer en 1 durante varios ticks: un biestable guarda su valor anterior y permite cobrar solo en el primer tick de Victoria. Al salir de ese estado, queda listo para detectar la próxima victoria. Al integrar los módulos corregimos la conexión de `En Victoria`: recibía `Hay Premio` y podía cobrar antes de jugar, o no detectar dos premios consecutivos. La conectamos a `Qa AND Qb` (estado `11`), para cobrar una sola vez por cada entrada en Victoria.
+Jugar debe activarse una vez por tirada aceptada. En cambio, En Victoria puede permanecer en 1 durante varios ticks: un biestable guarda su valor anterior y permite cobrar solo en el primer tick de Victoria. Al salir de ese estado, queda listo para detectar la próxima victoria. 
+
+Al integrar los módulos corregimos la conexión de `En Victoria`: recibía `Hay Premio` y podía cobrar antes de jugar, o no detectar dos premios consecutivos. La conectamos a `Qa AND Qb` (estado `11`), para cobrar una sola vez por cada entrada en Victoria.
 
 Por otro lado podemos hacer uso de 2 salidas para el circuito, **Hay Créditos** que nos habilita a hacer una nueva jugada y **Saldo Actual** de 8 bits a modo de visor para que el usuario pueda saber cuántos créditos restantes tiene.
 
@@ -385,7 +392,9 @@ El saldo está limitado a 8 bits. No implementamos saturación: si una suma supe
 
 ##### Resta
 
-Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en su entrada superior y una constante 01 en la inferior, por lo que calcula saldo_actual − 1. Un tercer multiplexor selecciona entre conservar el saldo y guardar el resultado de la resta según la entrada Jugar. Su salida alimenta el multiplexor de cobro y, finalmente, la entrada D del registro. [23](#fuente-23)
+Para descontar una moneda usamos un **Subtractor** de 8 bits. Recibe saldo_actual en su entrada superior y una constante 01 binaria (1 en decimal) en la inferior, por lo que calcula saldo_actual − 1. 
+
+Un tercer multiplexor selecciona entre conservar el saldo y guardar el resultado de la resta según la entrada Jugar. Su salida alimenta el multiplexor de cobro y, finalmente, la entrada D del registro. [23](#fuente-23)
 
 <p align="center">
   <img src="../img/logica_resta_v1.png" alt="Lógica para restar el saldo_actual menos 1" width="500"><br>
@@ -401,26 +410,22 @@ Para descontar una moneda usamos un Subtractor de 8 bits. Recibe saldo_actual en
 
 ### Visualizador de créditos
 
-La letra pide mostrar el saldo al mismo tiempo en decimal, con displays de siete segmentos, y en binario, con LEDs. Como controlador_creditos guarda valores de 0 a 255 en 8 bits, necesitamos ocho LEDs y tres cifras decimales.
+La letra pide mostrar el saldo al mismo tiempo en decimal, con displays de siete segmentos, y en binario, con LEDs. Como **controlador_creditos** guarda valores de 0 a 255 en 8 bits, necesitamos ocho LEDs y tres cifras decimales.
 
 Creamos **visualizador_creditos** para recibir el saldo y entregar cuatro salidas: una de 8 bits para los LEDs y otras tres para las unidades, decenas y centenas. Conectamos la salida binaria a ocho LEDs en el circuito principal, uno por cada bit del saldo.
 
 Primero estudiamos el display. Tiene un pin por cada segmento y otro para el punto decimal. Los cuatro pines superiores son g, f, a, b; los inferiores son e, d, c, punto, de izquierda a derecha. Así pudimos identificar qué señal debía llegar a cada pin. [24](#fuente-24)
 
-Después necesitábamos transformar una cifra en las señales que dibujan esa cifra. Reutilizamos la idea de las ROM empleada para los símbolos del juego y creamos **digito_7_segmentos**. Recibe una cifra de 4 bits y consulta una ROM que devuelve el patrón de 8 bits correspondiente. Por ejemplo, para el número 1 devuelve 06, que enciende las dos barras de la derecha. Usamos tres instancias de este subcircuito. [25](#fuente-25)
+Después necesitábamos mapear la cifra numerica en las señales necesairias para dibujar esa cifra con el display. Consultamos con Codex y nos sugirio reutilizar la idea de las ROM empleada para los símbolos del juego y creamos **digito_7_segmentos**. Recibe una cifra de 4 bits y consulta una ROM que devuelve el patrón de 8 bits correspondiente. Por ejemplo, para el número 1 devuelve 06, que enciende las dos barras de la derecha. Usamos tres instancias de este subcircuito. [25](#fuente-25)
 
 <p align="center">
   <img src="../img/digito_7_segmentos_v1.png" alt="ROM que convierte una cifra en el patrón de los siete segmentos y el punto decimal" width="500"><br>
   <em>Figura 23. Subcircuito digito_7_segmentos y sus patrones guardados en ROM.</em>
 </p>
 
-Para separar las cifras usamos **Divider**, que divide un número entre otro y entrega el cociente entero y el resto [26](#fuente-26).
-
 Todavía nos faltaba obtener las tres cifras a partir del saldo. Usamos dos Divider por 10. El resto de la primera da las unidades, dividimos su cociente nuevamente y obtenemos las decenas como resto y las centenas como cociente. [26](#fuente-26)
 
-Un **Bit Selector** extrae de un bus un grupo de bits elegido por su entrada de selección [27](#fuente-27).
-
-Cada cifra sale en 8 bits, así que un Bit Selector toma sus cuatro bits inferiores antes de enviarla a **digito_7_segmentos**. [27](#fuente-27)
+Cada cifra sale en 8 bits, así que usamos dos **Bit Selectors** que toman la salida de las operaciones para enviar tan solo los cuatro bits a **digito_7_segmentos**. [27](#fuente-27)
 
 <p align="center">
   <img src="../img/visualizador_creditos_v1.png" alt="Visualizador de créditos con dos divisores y tres displays que muestran 255" width="750"><br>
@@ -435,7 +440,7 @@ Recibe tres entradas (resultados) de 2 bits y tiene dos salidas:
 - `Premio`, con la cantidad de créditos ganados (8 bits).
 - `Hay Premio`, que indica si la combinación tiene premio.
 
-Primero comparamos, usando Comparator, el resultado 1 con el 2 y el resultado 2 con el 3. Unimos las dos comparaciones con un AND.
+Primero comparamos, usando **Comparator**, el resultado 1 con el 2 y el resultado 2 con el 3. Unimos las dos comparaciones con un AND.
 
 Luego usamos un multiplexor para elegir el premio según el símbolo.
 
@@ -466,7 +471,7 @@ El **Divider** entrega el cociente y el resto; usamos solamente el resto, que qu
 
 Conectamos `Generar` al reloj del Random y del registro. Cada subida de la solicitud guarda el candidato disponible y avanza la secuencia para la próxima tirada; el registro toma el valor que había antes del flanco. Esto permite capturar entre ticks del reloj principal y conservar el resultado aunque `Generar` siga en 1.
 
-Empezamos con tres subcircuitos para poder configurar una semilla diferente en cada uno. Después los reunimos en `generador_resultados`, con una entrada `Generar` de 1 bit y tres salidas de 2 bits: `Resultado 1`, `Resultado 2` y `Resultado 3`. En el circuito principal quedó un solo bloque, y cada resultado se conecta a su controlador de display y al evaluador de premios.
+Empezamos con tres subcircuitos para poder configurar una semilla diferente en cada uno. Después los reunimos en **generador_resultados**, con una entrada `Generar` de 1 bit y tres salidas de 2 bits: `Resultado 1`, `Resultado 2` y `Resultado 3`. En el circuito principal quedó un solo bloque, y cada resultado se conecta a su controlador de display y al evaluador de premios.
 
 <p align="center">
   <img src="../img/generador-resultados-modulo-3.png" alt="Generador con tres Random, divisores por tres y registros de resultado" width="500"><br>
@@ -495,14 +500,14 @@ Al agrupar los bloques dejamos desconectados los relojes de los dos primeros Ran
 
 ### Parpadeo y duración de Victoria
 
-Para el parpadeo aprovechamos la dirección `11`, que ya teníamos definida para apagar las pantallas. Agregamos una entrada `Apagar` a `controlador_display` y un segundo multiplexor antes de las ROM: con `Apagar = 0` deja pasar la selección normal; con `Apagar = 1` selecciona `11`. Los tres displays reciben la misma señal.
+Para el parpadeo aprovechamos la dirección `11`, que ya teníamos definida para apagar las pantallas. Agregamos una entrada `Apagar` a **controlador_display** y un segundo **Multiplexor** antes de las ROM: con `Apagar = 0` deja pasar la selección normal; con `Apagar = 1` selecciona `11`. Los tres displays reciben la misma señal.
 
 <p align="center">
   <img src="../img/controlador-display-apagado-victoria.png" alt="Controlador de display con selección de pantalla apagada" width="600"><br>
   <em>Figura 27. Entrada Apagar y multiplexor para el parpadeo.</em>
 </p>
 
-Después armamos `controlador_victoria`. Una compuerta AND combina `En Victoria` con el reloj para alternar entre el resultado ganador y la pantalla apagada. Fuera de Victoria, `Apagar` queda en 0.
+Después armamos **controlador_victoria**. Una compuerta AND combina `En Victoria` con el reloj para alternar entre el resultado ganador y la pantalla apagada. Fuera de Victoria, `Apagar` queda en 0.
 
 Para terminar el estado usamos un contador de 2 bits, con máximo 3 y detención al llegar a ese valor. Cuenta en los flancos de bajada y se reinicia mediante `NOT En Victoria`. Un comparador activa `Victoria Terminada` cuando llega a 3; esa salida reemplaza el botón de prueba de la máquina de estados.
 
@@ -556,9 +561,9 @@ En las 1000 tiradas se descontaron 1000 créditos y se entregaron 225 en premios
 </p>
 
 ## Funcionalidad Patricio Nuñez (398434)
-Como funcionalidad extra decidí agregar un display que muestre cuántos créditos ganó el jugador en cada tirada. Para implementarlo, busqué reutilizar los circuitos que ya teníamos.
+Para la funcionalidad extra use chatGPT para pensar en distintas ideas, luego de ver las propuestas decidi ir por una idea propia. Decidí agregar un display que muestre cuántos créditos ganó el jugador en cada tirada. Para implementarlo, busqué reutilizar los circuitos que ya teníamos.
 
-En main contamos con la señal Premio, un cable de 8 bits que lleva el valor desde **evaluador_premios** hasta **controlador_creditos**, donde se suma al saldo. Esa señal ya se usaba para pagar el premio, pero todavía no se mostraba al jugador.
+En main contamos con la señal Premio, un cable de 8 bits que lleva el valor del premio desde **evaluador_premios** hasta **controlador_creditos**, donde se suma al saldo. Esa señal ya se usaba para pagar el premio, pero todavía no se mostraba al jugador. Una particularidad de esta señal y de **evaluador_premios** es que ya evaluan la no ganancia como un premio de "0 creditos", lo cual es ideal para cubrir el caso en el que el display muestra que hemos ganado 0 creditos. 
 
 En una primera implementación reutilicé la lógica de **visualizador_creditos**, que separa un número binario en unidades, decenas y centenas. Como los premios posibles son 0, 1, 2 y 3, solo necesitaba la salida de unidades para mostrar el valor en un display.
 
@@ -574,11 +579,11 @@ En una primera implementación reutilicé la lógica de **visualizador_creditos*
 
 El concepto funcionaba, pero habia un problema, el premio se elige antes de que termine la animación. Por lo tanto, el jugador podía ver cuánto iba a ganar antes de conocer el resultado de los tres displays. Eso le quitaba intriga a la jugada.
 
-Para resolverlo creé un nuevo circuito, **visualizador_premio**, con dos entradas, Premio y Mostrar, y una salida de 8 bits con el patrón que se envía al display. Mostrar se conecta a Animacion Terminada, de modo que el premio aparece recién cuando termina la jugada.
+Para resolverlo creé un nuevo circuito, **visualizador_premio**, con dos entradas, `Premio` y `Mostrar`, y una salida de 8 bits con el patrón que se envía al display. Mostrar se conecta a `Animacion Terminada`, de modo que el premio aparece recién cuando termina la jugada.
 
-Dentro del circuito usé un Random conectado al reloj para generar un nuevo valor de 8 bits en cada tick. Un multiplexor elige qué enviar a la salida: mientras Mostrar = 0, muestra el patrón aleatorio; cuando Mostrar = 1, muestra el premio real.
+Dentro del circuito usé un **Random** conectado al reloj para generar una nueva tira de 8 bits en cada tick del reloj. Un multiplexor elige qué enviar a la salida: mientras `Mostrar` = 0, muestra el patrón aleatorio; cuando `Mostrar` = 1, muestra el premio real.
 
-Así, durante la animación los segmentos del display se encienden de forma cambiante y, al terminar, aparece el valor ganado. Esto agrega un efecto visual que mantiene la intriga hasta el final de la tirada.
+Así, durante la animación los segmentos del display se encienden de forma randomica y, al terminar, aparece el valor ganado. Esto agrega un efecto visual que mantiene la intriga hasta el final de la tirada.
 
 <p align="center">
   <img src="../img/visualizador_premio_v1.png" alt="Subcircuito visualizador de premio con Random y multiplexor" width="500"><br>
@@ -589,8 +594,6 @@ Así, durante la animación los segmentos del display se encienden de forma camb
   <img src="../img/visualizador_premio_main_v2.png" alt="Integración del visualizador de premio en el circuito principal" width="500"><br>
   <em>Figura 34. Visualizador de premio conectado a Premio y Animación terminada en main.</em>
 </p>
-
-Utilicé ChatGPT para explorar ideas de funcionalidades extra pero decidi ir por una idea propia, adicionalmente revisar la redacción de esta sección y generar la aliniacion de imagenes .
 
 ## Funcionalidad Rafael Menendez (391040)
 
